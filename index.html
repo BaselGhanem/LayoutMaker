@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Layout Architect Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            /* Vercel/Linear Inspired Dark Theme */
+            --bg-body: #09090b;
+            --bg-panel: #18181b;
+            --bg-panel-glass: rgba(24, 24, 27, 0.85);
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #8b5cf6;
+            --canvas-bg: #e4e4e7; /* Light canvas for PBI contrast */
+            --selection: rgba(59, 130, 246, 0.2);
+            --selection-border: #3b82f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+        /* Panels */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-panel-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .sidebar.right { right: 0; border-right: none; }
+        
+        .header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .header h1 { font-size: 15px; font-weight: 700; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .section { padding: 16px 20px; border-bottom: 1px solid var(--border); overflow-y: auto; flex-shrink: 0;}
+        .section.fill { flex-grow: 1; }
+        .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+
+        /* Controls */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .control-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;}
+        .control-group label { font-size: 12px; font-weight: 500; color: var(--text-muted);}
+        
+        input[type="number"], select {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+            font-family: inherit; font-size: 13px; background: #000; color: var(--text-main); outline: none;
+            transition: all 0.2s;
+        }
+        input[type="number"]:focus, select:focus { border-color: var(--primary); }
+        input[type="color"] { width: 100%; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: #000; cursor: pointer; }
+        
+        .btn {
+            width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.03); color: var(--text-main); margin-bottom: 8px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.08); border-color: var(--border-hover); }
+        .btn-primary { background: var(--primary); border-color: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+        
+        .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px; color: var(--text-muted);}
+        
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .layout-btn { font-size: 11px; padding: 8px 4px; text-align: center; }
+
+        /* Workspace & Canvas */
+        .workspace {
+            flex: 1; position: relative; overflow: hidden; 
+            background: radial-gradient(circle at 50% 50%, #1f1f22 1px, transparent 1px);
+            background-size: 24px 24px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        #canvas-container { position: absolute; transform-origin: 0 0; }
+        
+        canvas { 
+            display: block; 
+            background: var(--canvas-bg);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-panel-glass); backdrop-filter: blur(12px); padding: 6px 12px;
+            border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex; gap: 10px; z-index: 20; font-size: 12px; align-items: center;
+        }
+        .toolbar span { cursor: pointer; padding: 6px 10px; border-radius: 6px; color: var(--text-muted); transition: 0.2s;}
+        .toolbar span:hover { background: rgba(255,255,255,0.1); color: white; }
+        .divider { width: 1px; height: 16px; background: var(--border); }
+
+        /* File Input Hide */
+        input[type="file"] { display: none; }
+        
+        #empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6;}
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="header"><h1>✨ Layout Architect Pro</h1></div>
+
+        <div class="section">
+            <div class="section-title">Canvas Setup</div>
+            <div class="grid-2">
+                <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
+                <div class="control-group"><label>Height</label><input type="number" id="c-h" value="720"></div>
+            </div>
+            <button class="btn" onclick="app.updateCanvas()">Update & Fit Screen</button>
+        </div>
+
+        <div class="section fill">
+            <div class="section-title">20 Smart Layouts <span>🪄</span></div>
+            <select id="layout-select" style="margin-bottom: 10px;">
+                <option value="1">1. Standard Dashboard</option>
+                <option value="2">2. 3 Columns Equal</option>
+                <option value="3">3. 4 Columns Equal</option>
+                <option value="4">4. Sidebar + Content</option>
+                <option value="5">5. Top Header + 3 Cols</option>
+                <option value="6">6. Grid 2x2</option>
+                <option value="7">7. Grid 3x3</option>
+                <option value="8">8. Dual Massive Charts</option>
+                <option value="9">9. 6 KPIs + Main Body</option>
+                <option value="10">10. Asymmetric Left Focus</option>
+                <option value="11">11. Asymmetric Right Focus</option>
+                <option value="12">12. Executive Center Focus</option>
+                <option value="13">13. Marketing (Side + Top KPIs)</option>
+                <option value="14">14. Financial (Header + Matrix)</option>
+                <option value="15">15. Single Massive Card</option>
+                <option value="16">16. Top Heavy (Big Top, Small Bottom)</option>
+                <option value="17">17. Bottom Heavy</option>
+                <option value="18">18. 5 Column Metrics</option>
+                <option value="19">19. Floating Island Cards</option>
+                <option value="20">20. Minimalist Focus</option>
+            </select>
+            <button class="btn btn-primary" onclick="app.generateLayout()">⚡ Apply Layout</button>
+            
+            <div class="divider" style="width:100%; height:1px; margin: 15px 0;"></div>
+            
+            <div class="section-title">Add Elements</div>
+            <button class="btn" onclick="app.addBox()">🟦 Add Box</button>
+            <button class="btn" onclick="document.getElementById('image-upload').click()">🖼️ Add Image</button>
+            <input type="file" id="image-upload" accept="image/png, image/jpeg, image/svg+xml" onchange="app.addImage(event)">
+        </div>
+
+        <div class="section">
+            <button class="btn btn-primary" onclick="app.exportPNG()">📥 Export PNG (2x)</button>
+        </div>
+    </div>
+
+    <div class="workspace" id="workspace">
+        <div id="canvas-container">
+            <canvas id="appCanvas"></canvas>
+        </div>
+        
+        <div class="toolbar">
+            <span onclick="app.undo()" title="Undo">↩️</span>
+            <span onclick="app.redo()" title="Redo">↪️</span>
+            <div class="divider"></div>
+            <span onclick="app.fitToScreen()">🖥️ Fit</span>
+            <span onclick="app.setZoom(app.zoom + 0.1)">➕</span>
+            <span id="zoom-indicator">100%</span>
+            <span onclick="app.setZoom(app.zoom - 0.1)">➖</span>
+            <div class="divider"></div>
+            <span onclick="app.clearCanvas()" style="color: #ef4444;">🗑️ Clear</span>
+        </div>
+    </div>
+
+    <div class="sidebar right">
+        <div class="header"><h1>Properties</h1></div>
+        
+        <div id="empty-state">
+            Select an element (or drag to select multiple) to edit properties.<br><br>
+            <i>💡 Tip: Hold Shift to select multiple elements. Space + Drag to Pan.</i>
+        </div>
+        
+        <div id="properties-panel" class="section fill" style="display:none;">
+            <div id="multi-warning" style="display:none; color: var(--accent); font-size: 11px; margin-bottom: 10px;">
+                ⚠️ Multiple Elements Selected
+            </div>
+
+            <div class="section-title">Position & Size</div>
+            <div class="grid-2">
+                <div class="control-group"><label>X</label><input type="number" id="p-x" oninput="app.updateSelected()"></div>
+                <div class="control-group"><label>Y</label><input type="number" id="p-y" oninput="app.updateSelected()"></div>
+                <div class="control-group"><label>W</label><input type="number" id="p-w" oninput="app.updateSelected()"></div>
+                <div class="control-group"><label>H</label><input type="number" id="p-h" oninput="app.updateSelected()"></div>
+            </div>
+
+            <div class="section-title" style="margin-top: 15px;">Appearance</div>
+            <div class="grid-2">
+                <div class="control-group"><label>Radius</label><input type="number" id="p-r" oninput="app.updateSelected()"></div>
+                <div class="control-group"><label>Opacity</label><input type="number" step="0.1" min="0" max="1" id="p-o" oninput="app.updateSelected()"></div>
+            </div>
+            <div class="control-group"><label>Color</label><input type="color" id="p-c" oninput="app.updateSelected()"></div>
+            
+            <label class="checkbox-group" style="margin-top: 15px;">
+                <input type="checkbox" id="p-shadow" onchange="app.updateSelected()"> Glass Shadow
+            </label>
+
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="app.duplicateSelected()">📋 Duplicate</button>
+                <button class="btn" onclick="app.deleteSelected()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">🗑️ Delete</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+class LayoutEnginePro {
+    constructor() {
+        this.canvas = document.getElementById('appCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.container = document.getElementById('canvas-container');
+        this.workspace = document.getElementById('workspace');
+        
+        // Data State
+        this.width = 1280; this.height = 720;
+        this.boxes = [];
+        this.selectedIds = [];
+        
+        // Viewport State
+        this.zoom = 1; this.panX = 0; this.panY = 0;
+        
+        // Interaction State
+        this.isPanning = false; this.isDragging = false; this.isResizing = false;
+        this.isSelecting = false;
+        this.resizeHandle = null;
+        this.dragOffsets = {}; // { id: {dx, dy} }
+        this.selectionStart = {x:0, y:0};
+        this.selectionBox = null; // {x,y,w,h}
+        
+        // History
+        this.history = []; this.historyStep = -1;
+
+        this.init();
+    }
+
+    init() {
+        this.updateCanvas(false);
+        this.bindEvents();
+        this.saveState();
+        
+        // Auto-fit after slight delay to ensure DOM is ready
+        setTimeout(() => { this.fitToScreen(); }, 50);
+    }
+
+    updateCanvas(save = true) {
+        this.width = parseInt(document.getElementById('c-w').value) || 1280;
+        this.height = parseInt(document.getElementById('c-h').value) || 720;
+        this.canvas.width = this.width; this.canvas.height = this.height;
+        this.container.style.width = this.width + 'px';
+        this.container.style.height = this.height + 'px';
+        if(save) { this.fitToScreen(); this.saveState(); }
+        this.render();
+    }
+
+    // --- Viewport Management ---
+    fitToScreen() {
+        const ws = this.workspace.getBoundingClientRect();
+        const padding = 80;
+        const scaleX = (ws.width - padding) / this.width;
+        const scaleY = (ws.height - padding) / this.height;
+        this.zoom = Math.min(scaleX, scaleY, 1.5);
+        this.panX = (ws.width - (this.width * this.zoom)) / 2;
+        this.panY = (ws.height - (this.height * this.zoom)) / 2;
+        this.applyTransform();
+    }
+
+    setZoom(level) {
+        this.zoom = Math.max(0.1, Math.min(4, level));
+        this.applyTransform();
+    }
+
+    applyTransform() {
+        this.container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
+        document.getElementById('zoom-indicator').innerText = Math.round(this.zoom * 100) + '%';
+    }
+
+    getMousePos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        return { x: (e.clientX - rect.left) / this.zoom, y: (e.clientY - rect.top) / this.zoom };
+    }
+
+    // --- History ---
+    saveState() {
+        // Create deep copy, avoiding Image object circular refs
+        const stateBoxes = this.boxes.map(b => {
+            const copy = {...b};
+            if(copy.type === 'image') delete copy.imgObj; // Remove raw image object for JSON
+            return copy;
+        });
+        const state = JSON.stringify({ w: this.width, h: this.height, boxes: stateBoxes });
+        this.history = this.history.slice(0, this.historyStep + 1);
+        this.history.push(state);
+        this.historyStep++;
+    }
+
+    undo() { if(this.historyStep > 0) this.restoreState(this.history[--this.historyStep]); }
+    redo() { if(this.historyStep < this.history.length - 1) this.restoreState(this.history[++this.historyStep]); }
+
+    restoreState(stateStr) {
+        const data = JSON.parse(stateStr);
+        this.width = data.w; document.getElementById('c-w').value = this.width;
+        this.height = data.h; document.getElementById('c-h').value = this.height;
+        this.updateCanvas(false);
+        
+        // Rebuild image objects
+        this.boxes = data.boxes;
+        this.boxes.forEach(b => {
+            if(b.type === 'image' && b.src) {
+                b.imgObj = new Image();
+                b.imgObj.onload = () => this.render();
+                b.imgObj.src = b.src;
+            }
+        });
+        this.selectedIds = [];
+        this.syncUI(); this.render();
+    }
+
+    // --- Interaction Core ---
+    bindEvents() {
+        // Pan & Zoom
+        this.workspace.addEventListener('wheel', (e) => {
+            if(e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                this.setZoom(this.zoom - (e.deltaY > 0 ? 0.05 : -0.05));
+            } else {
+                // Pan with wheel
+                this.panX -= e.deltaX; this.panY -= e.deltaY;
+                this.applyTransform();
+            }
+        }, { passive: false });
+
+        // Mouse Down
+        this.workspace.addEventListener('mousedown', (e) => {
+            if(e.button === 1 || (e.button === 0 && e.code === 'Space')) {
+                this.isPanning = true; this.workspace.style.cursor = 'grabbing';
+                return;
+            }
+            if(e.target !== this.canvas) return;
+            
+            const pos = this.getMousePos(e);
+            
+            // 1. Check Resize Handle (only if 1 item selected)
+            if(this.selectedIds.length === 1) {
+                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+                const hs = 10; // handle size
+                if(pos.x >= b.x+b.w-hs && pos.x <= b.x+b.w && pos.y >= b.y+b.h-hs && pos.y <= b.y+b.h) {
+                    this.isResizing = true; this.resizeHandle = 'se'; return;
+                }
+            }
+
+            // 2. Check Box Selection
+            let clickedBox = [...this.boxes].reverse().find(b => pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h);
+            
+            if(clickedBox) {
+                if(e.shiftKey) {
+                    if(this.selectedIds.includes(clickedBox.id)) this.selectedIds = this.selectedIds.filter(id => id !== clickedBox.id);
+                    else this.selectedIds.push(clickedBox.id);
+                } else {
+                    if(!this.selectedIds.includes(clickedBox.id)) this.selectedIds = [clickedBox.id];
+                }
+                
+                // Setup dragging for all selected
+                this.isDragging = true;
+                this.dragOffsets = {};
+                this.selectedIds.forEach(id => {
+                    const b = this.boxes.find(x => x.id === id);
+                    this.dragOffsets[id] = { dx: pos.x - b.x, dy: pos.y - b.y };
+                });
+            } else {
+                // Marquee Selection Start
+                this.selectedIds = [];
+                this.isSelecting = true;
+                this.selectionStart = { x: pos.x, y: pos.y };
+                this.selectionBox = { x: pos.x, y: pos.y, w: 0, h: 0 };
+            }
+            this.syncUI(); this.render();
+        });
+
+        // Mouse Move
+        window.addEventListener('mousemove', (e) => {
+            if(this.isPanning) {
+                this.panX += e.movementX; this.panY += e.movementY;
+                this.applyTransform(); return;
+            }
+            
+            const pos = this.getMousePos(e);
+
+            if(this.isDragging) {
+                this.selectedIds.forEach(id => {
+                    const b = this.boxes.find(x => x.id === id);
+                    const offset = this.dragOffsets[id];
+                    // Snap to 10px grid
+                    b.x = Math.round((pos.x - offset.dx)/10)*10;
+                    b.y = Math.round((pos.y - offset.dy)/10)*10;
+                });
+                this.syncUI(); this.render();
+            } 
+            else if(this.isResizing) {
+                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+                b.w = Math.max(20, Math.round((pos.x - b.x)/10)*10);
+                b.h = Math.max(20, Math.round((pos.y - b.y)/10)*10);
+                this.syncUI(); this.render();
+            }
+            else if(this.isSelecting) {
+                this.selectionBox.w = pos.x - this.selectionStart.x;
+                this.selectionBox.h = pos.y - this.selectionStart.y;
+                
+                // Calculate selection intersections
+                const rect = {
+                    x: Math.min(this.selectionStart.x, pos.x),
+                    y: Math.min(this.selectionStart.y, pos.y),
+                    w: Math.abs(this.selectionBox.w),
+                    h: Math.abs(this.selectionBox.h)
+                };
+                
+                this.selectedIds = this.boxes.filter(b => 
+                    b.x < rect.x + rect.w && b.x + b.w > rect.x &&
+                    b.y < rect.y + rect.h && b.y + b.h > rect.y
+                ).map(b => b.id);
+                
+                this.render();
+            }
+        });
+
+        // Mouse Up
+        window.addEventListener('mouseup', () => {
+            if(this.isPanning) { this.isPanning = false; this.workspace.style.cursor = 'default'; }
+            if(this.isDragging || this.isResizing) {
+                this.isDragging = false; this.isResizing = false;
+                this.saveState();
+            }
+            if(this.isSelecting) {
+                this.isSelecting = false; this.selectionBox = null;
+                this.syncUI(); this.render();
+            }
+        });
+
+        // Keyboard
+        window.addEventListener('keydown', (e) => {
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+            if(e.key === 'Delete' || e.key === 'Backspace') { this.deleteSelected(); }
+            if(e.ctrlKey || e.metaKey) {
+                if(e.key === 'z') { e.preventDefault(); this.undo(); }
+                if(e.key === 'y') { e.preventDefault(); this.redo(); }
+                if(e.key === 'd' && this.selectedIds.length > 0) { e.preventDefault(); this.duplicateSelected(); }
+            }
+            if(e.code === 'Space') { this.isPanning = true; this.workspace.style.cursor = 'grabbing'; }
+        });
+        window.addEventListener('keyup', (e) => {
+            if(e.code === 'Space') { this.isPanning = false; this.workspace.style.cursor = 'default'; }
+        });
+    }
+
+    // --- Elements Creation ---
+    addBox() {
+        this.boxes.push({ id: Date.now().toString(), type: 'rect', x: 50, y: 50, w: 200, h: 150, r: 16, color: '#ffffff', opacity: 1, shadow: true });
+        this.selectedIds = [this.boxes[this.boxes.length-1].id];
+        this.syncUI(); this.render(); this.saveState();
+    }
+
+    addImage(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const aspect = img.height / img.width;
+                this.boxes.push({ id: Date.now().toString(), type: 'image', x: 50, y: 50, w: 200, h: 200 * aspect, r: 0, opacity: 1, shadow: false, imgObj: img, src: event.target.result });
+                this.selectedIds = [this.boxes[this.boxes.length-1].id];
+                this.syncUI(); this.render(); this.saveState();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    deleteSelected() {
+        this.boxes = this.boxes.filter(b => !this.selectedIds.includes(b.id));
+        this.selectedIds = [];
+        this.syncUI(); this.render(); this.saveState();
+    }
+
+    duplicateSelected() {
+        const newIds = [];
+        this.selectedIds.forEach(id => {
+            const b = this.boxes.find(x => x.id === id);
+            const dup = {...b, id: Math.random().toString(), x: b.x + 20, y: b.y + 20};
+            this.boxes.push(dup);
+            newIds.push(dup.id);
+        });
+        this.selectedIds = newIds;
+        this.syncUI(); this.render(); this.saveState();
+    }
+
+    clearCanvas() {
+        this.boxes = []; this.selectedIds = [];
+        this.syncUI(); this.render(); this.saveState();
+    }
+
+    // --- UI Sync ---
+    syncUI() {
+        const pPanel = document.getElementById('properties-panel');
+        const eState = document.getElementById('empty-state');
+        const mWarn = document.getElementById('multi-warning');
+        
+        if(this.selectedIds.length > 0) {
+            pPanel.style.display = 'flex'; pPanel.style.flexDirection = 'column';
+            eState.style.display = 'none';
+            mWarn.style.display = this.selectedIds.length > 1 ? 'block' : 'none';
+            
+            const b = this.boxes.find(x => x.id === this.selectedIds[0]); // Show props of first selected
+            document.getElementById('p-x').value = b.x;
+            document.getElementById('p-y').value = b.y;
+            document.getElementById('p-w').value = b.w;
+            document.getElementById('p-h').value = b.h;
+            document.getElementById('p-r').value = b.r || 0;
+            document.getElementById('p-o').value = b.opacity;
+            if(b.type === 'rect') document.getElementById('p-c').value = b.color;
+            document.getElementById('p-shadow').checked = b.shadow || false;
+
+            // Disable pos/size inputs if multiple selected (to avoid logic complexity in single file)
+            const disableGeom = this.selectedIds.length > 1;
+            ['p-x', 'p-y', 'p-w', 'p-h'].forEach(id => document.getElementById(id).disabled = disableGeom);
+        } else {
+            pPanel.style.display = 'none'; eState.style.display = 'block';
+        }
+    }
+
+    updateSelected() {
+        if(this.selectedIds.length === 0) return;
+        
+        const r = parseInt(document.getElementById('p-r').value) || 0;
+        const op = parseFloat(document.getElementById('p-o').value) || 1;
+        const col = document.getElementById('p-c').value;
+        const sh = document.getElementById('p-shadow').checked;
+
+        // Apply styles to ALL selected
+        this.selectedIds.forEach(id => {
+            const b = this.boxes.find(x => x.id === id);
+            b.r = r; b.opacity = op; b.shadow = sh;
+            if(b.type === 'rect') b.color = col;
+        });
+
+        // Apply geometry to FIRST selected (if only one)
+        if(this.selectedIds.length === 1) {
+            const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+            b.x = parseInt(document.getElementById('p-x').value) || 0;
+            b.y = parseInt(document.getElementById('p-y').value) || 0;
+            b.w = parseInt(document.getElementById('p-w').value) || 20;
+            b.h = parseInt(document.getElementById('p-h').value) || 20;
+        }
+        
+        this.render();
+    }
+
+    // --- Render ---
+    render(forExport = false, scale = 1) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw Elements
+        this.boxes.forEach(b => {
+            this.ctx.save();
+            this.ctx.globalAlpha = b.opacity;
+            
+            if(b.shadow) {
+                this.ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                this.ctx.shadowBlur = 30 * scale;
+                this.ctx.shadowOffsetY = 15 * scale;
+            }
+
+            this.ctx.beginPath();
+            this.ctx.roundRect(b.x, b.y, b.w, b.h, b.r);
+            
+            if(b.type === 'rect') {
+                this.ctx.fillStyle = b.color;
+                this.ctx.fill();
+            } else if(b.type === 'image' && b.imgObj) {
+                this.ctx.clip(); // Clip to rounded rect
+                this.ctx.drawImage(b.imgObj, b.x, b.y, b.w, b.h);
+            }
+            this.ctx.restore();
+        });
+
+        if(forExport) return;
+
+        // Draw Selection Highlighting
+        if(this.selectedIds.length > 0) {
+            this.ctx.strokeStyle = 'var(--selection-border)';
+            this.ctx.lineWidth = 2;
+            
+            this.selectedIds.forEach(id => {
+                const b = this.boxes.find(x => x.id === id);
+                if(b) this.ctx.strokeRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
+            });
+
+            // Draw Resize Handle for single selection
+            if(this.selectedIds.length === 1) {
+                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
+                this.ctx.strokeRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
+            }
+        }
+
+        // Draw Marquee
+        if(this.isSelecting && this.selectionBox) {
+            this.ctx.fillStyle = 'var(--selection)';
+            this.ctx.strokeStyle = 'var(--selection-border)';
+            this.ctx.lineWidth = 1;
+            this.ctx.fillRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
+            this.ctx.strokeRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
+        }
+    }
+
+    // --- 20 Smart Layouts Generator ---
+    generateLayout() {
+        const type = parseInt(document.getElementById('layout-select').value);
+        this.boxes = [];
+        const w = this.width; const h = this.height;
+        const g = 20; // gap
+        const base = () => ({ id: Math.random().toString(), type: 'rect', color: '#ffffff', opacity: 1, shadow: true, r: 16 });
+        const add = (x,y,bw,bh) => this.boxes.push({...base(), x, y, w: bw, h: bh});
+
+        const w3 = (w - g*4)/3; const w4 = (w - g*5)/4;
+        const h2 = (h - g*3)/2; const h3 = (h - g*4)/3;
+
+        switch(type) {
+            case 1: // Standard Dash
+                add(g,g, w-g*2, 80); // Header
+                for(let i=0;i<4;i++) add(g+(w4+g)*i, g*2+80, w4, 120); // KPIs
+                add(g, g*3+200, (w-g*3)/2, h-(g*4+200)); add(g*2+(w-g*3)/2, g*3+200, (w-g*3)/2, h-(g*4+200)); // Charts
+                break;
+            case 2: // 3 Cols
+                for(let i=0;i<3;i++) add(g+(w3+g)*i, g, w3, h-g*2); break;
+            case 3: // 4 Cols
+                for(let i=0;i<4;i++) add(g+(w4+g)*i, g, w4, h-g*2); break;
+            case 4: // Sidebar
+                add(g,g, 250, h-g*2); add(250+g*2, g, w-250-g*3, h-g*2); break;
+            case 5: // Top + 3 Cols
+                add(g,g, w-g*2, 100); for(let i=0;i<3;i++) add(g+(w3+g)*i, g*2+100, w3, h-100-g*3); break;
+            case 6: // 2x2
+                add(g,g, (w-g*3)/2, h2); add(g*2+(w-g*3)/2, g, (w-g*3)/2, h2);
+                add(g, g*2+h2, (w-g*3)/2, h2); add(g*2+(w-g*3)/2, g*2+h2, (w-g*3)/2, h2); break;
+            case 7: // 3x3
+                for(let r=0;r<3;r++) for(let c=0;c<3;c++) add(g+(w3+g)*c, g+(h3+g)*r, w3, h3); break;
+            case 8: // Dual Massive
+                add(g,g, w-g*2, h2); add(g, g*2+h2, w-g*2, h2); break;
+            case 9: // 6 KPIs + Main
+                const w6 = (w-g*7)/6;
+                for(let i=0;i<6;i++) add(g+(w6+g)*i, g, w6, 120);
+                add(g, g*2+120, w-g*2, h-120-g*3); break;
+            case 10: // Asymmetric Left
+                add(g,g, (w-g*3)*0.65, h-g*2); add(g*2+(w-g*3)*0.65, g, (w-g*3)*0.35, h2); add(g*2+(w-g*3)*0.65, g*2+h2, (w-g*3)*0.35, h2); break;
+            case 11: // Asymmetric Right
+                add(g,g, (w-g*3)*0.35, h2); add(g, g*2+h2, (w-g*3)*0.35, h2); add(g*2+(w-g*3)*0.35, g, (w-g*3)*0.65, h-g*2); break;
+            case 12: // Executive Center
+                add(g,g, 250, h-g*2); add(w-250-g, g, 250, h-g*2); add(g*2+250, g, w-500-g*4, h-g*2); break;
+            case 13: // Marketing
+                add(g,g, 200, h-g*2); // side
+                for(let i=0;i<3;i++) add(200+g*2 + ((w-200-g*5)/3 + g)*i, g, (w-200-g*5)/3, 150); // kpis
+                add(200+g*2, g*2+150, w-200-g*4, h-150-g*3); break; // main
+            case 14: // Financial
+                add(g,g, w-g*2, 60); // header
+                add(g, g*2+60, w-g*2, h2-30); // wide chart
+                for(let i=0;i<4;i++) add(g+(w4+g)*i, g*3+60+h2-30, w4, h-g*4-60-(h2-30)); break;
+            case 15: // Single
+                add(g*2, g*2, w-g*4, h-g*4); break;
+            case 16: // Top Heavy
+                add(g,g, w-g*2, h*0.6);
+                for(let i=0;i<3;i++) add(g+(w3+g)*i, g*2+h*0.6, w3, h*0.4-g*3); break;
+            case 17: // Bottom Heavy
+                for(let i=0;i<3;i++) add(g+(w3+g)*i, g, w3, h*0.4-g*2);
+                add(g, g*2+h*0.4-g*2, w-g*2, h*0.6); break;
+            case 18: // 5 Cols
+                const w5 = (w-g*6)/5;
+                for(let i=0;i<5;i++) add(g+(w5+g)*i, g, w5, h-g*2); break;
+            case 19: // Floating Islands
+                add(w*0.1, h*0.1, w*0.8, h*0.2); add(w*0.1, h*0.35, w*0.35, h*0.5); add(w*0.55, h*0.35, w*0.35, h*0.5); break;
+            case 20: // Minimalist
+                add(g*3, g*3, w-g*6, 100); add(g*3, g*4+100, w-g*6, h-g*7-100); break;
+        }
+
+        this.selectedIds = []; this.syncUI(); this.render(); this.saveState();
+    }
+
+    // --- Export ---
+    exportPNG() {
+        const scale = 2; // 2x Resolution
+        const tempC = document.createElement('canvas');
+        tempC.width = this.width * scale; tempC.height = this.height * scale;
+        const tempCtx = tempC.getContext('2d');
+        
+        const origCtx = this.ctx; const origC = this.canvas;
+        this.ctx = tempCtx; this.canvas = tempC;
+
+        this.ctx.scale(scale, scale);
+        
+        // Draw physical transparent background or canvas color based on PBI needs
+        this.ctx.fillStyle = 'transparent'; 
+        this.ctx.fillRect(0,0, this.width, this.height);
+        
+        this.render(true, scale);
+
+        const link = document.createElement('a');
+        link.download = `PBI_Layout_Pro_${this.width}x${this.height}.png`;
+        link.href = tempC.toDataURL('image/png');
+        link.click();
+
+        this.ctx = origCtx; this.canvas = origC;
+        this.render();
+    }
+}
+
+const app = new LayoutEnginePro();
+</script>
+</body>
+</html>
