@@ -3,237 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Power BI Layout Architect Pro</title>
+    <title>Layout Maker By Basel - Pro SaaS Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
-            /* Vercel/Linear Inspired Dark Theme */
-            --bg-body: #09090b;
-            --bg-panel: #18181b;
-            --bg-panel-glass: rgba(24, 24, 27, 0.85);
-            --border: #27272a;
-            --border-hover: #3f3f46;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --accent: #8b5cf6;
-            --canvas-bg: #e4e4e7; /* Light canvas for PBI contrast */
-            --selection: rgba(59, 130, 246, 0.2);
-            --selection-border: #3b82f6;
+            /* Premium Dark SaaS Theme - Linear/Vercel Inspired */
+            --bg-base: #000000;
+            --bg-body: #0a0a0a;
+            --bg-panel: #111111;
+            --bg-panel-glass: rgba(17, 17, 17, 0.75);
+            --bg-hover: rgba(255, 255, 255, 0.05);
+            --border: #222222;
+            --border-hover: #333333;
+            --border-active: #444444;
+            
+            --text-main: #ededed;
+            --text-muted: #888888;
+            --text-disabled: #444444;
+            
+            --primary: #0070f3;
+            --primary-hover: #3291ff;
+            --accent: #f81ce5;
+            --success: #00c600;
+            --warning: #f5a623;
+            --danger: #e00;
+            
+            --canvas-bg: #e4e4e7;
+            --selection-bg: rgba(0, 112, 243, 0.15);
+            --selection-border: #0070f3;
+            --guide-color: #f81ce5;
+
+            --font-primary: 'Inter', sans-serif;
+            --font-secondary: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: var(--font-primary); 
             background: var(--bg-body); 
             color: var(--text-main); 
             height: 100vh; 
             overflow: hidden; 
-            display: flex; 
+            display: flex;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+        ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        /* Panels */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-panel-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
+        /* Intro Screen */
+        #intro-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
         }
+        .intro-card {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            padding: 40px; border-radius: 24px; text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform: translateY(20px); opacity: 0;
+        }
+        @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+        .intro-card h1 { font-family: var(--font-secondary); font-size: 28px; margin-bottom: 8px; font-weight: 700; }
+        .intro-brand { background: linear-gradient(135deg, #0070f3 0%, #f81ce5 100%); -webkit-background-clip: text; color: transparent; }
+        .intro-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+        .intro-input {
+            width: 100%; padding: 14px 16px; background: #000; border: 1px solid var(--border);
+            border-radius: var(--radius-md); color: white; font-family: inherit; font-size: 16px;
+            outline: none; transition: 0.2s; text-align: center; margin-bottom: 20px;
+        }
+        .intro-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,112,243,0.1); }
+        .intro-btn {
+            width: 100%; padding: 14px; background: white; color: black; font-weight: 600;
+            border: none; border-radius: var(--radius-md); cursor: pointer; transition: 0.2s;
+            font-family: inherit; font-size: 15px;
+        }
+        .intro-btn:hover { transform: scale(1.02); background: #f0f0f0; }
 
-        .sidebar.right { right: 0; border-right: none; }
+        /* App Layout */
+        #app-container { display: flex; width: 100%; height: 100%; opacity: 0; transition: opacity 0.5s; }
         
-        .header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
-        .header h1 { font-size: 15px; font-weight: 700; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .panel {
+            background: var(--bg-panel-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10;
+        }
+        .sidebar-left { width: 280px; }
+        .sidebar-right { width: 320px; border-right: none; border-left: 1px solid var(--border); }
         
-        .section { padding: 16px 20px; border-bottom: 1px solid var(--border); overflow-y: auto; flex-shrink: 0;}
-        .section.fill { flex-grow: 1; }
-        .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+        .brand-title { font-family: var(--font-secondary); font-size: 14px; font-weight: 700; letter-spacing: 0px; }
+        .welcome-text { font-size: 12px; color: var(--text-muted); }
+        
+        .section { padding: 16px; border-bottom: 1px solid var(--border); overflow-y: auto; flex-shrink: 0;}
+        .section.fill { flex-grow: 1; border-bottom: none; }
+        .section-title { font-family: var(--font-secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
+        .section-title span { cursor: pointer; color: var(--primary); }
 
         /* Controls */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
         .control-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;}
-        .control-group label { font-size: 12px; font-weight: 500; color: var(--text-muted);}
+        .control-group label { font-size: 11px; font-weight: 500; color: var(--text-muted); }
         
-        input[type="number"], select {
-            width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
-            font-family: inherit; font-size: 13px; background: #000; color: var(--text-main); outline: none;
-            transition: all 0.2s;
+        input[type="number"], input[type="text"], select {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-family: var(--font-mono); font-size: 12px; background: var(--bg-base); color: var(--text-main); outline: none; transition: 0.2s;
         }
-        input[type="number"]:focus, select:focus { border-color: var(--primary); }
-        input[type="color"] { width: 100%; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: #000; cursor: pointer; }
+        input:focus, select:focus { border-color: var(--primary); }
+        input[type="color"] { width: 100%; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-base); cursor: pointer; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+        input[type="color"]::-webkit-color-swatch { border-radius: 2px; border: none; }
         
         .btn {
-            width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px;
-            background: rgba(255,255,255,0.03); color: var(--text-main); margin-bottom: 8px;
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            background: transparent; color: var(--text-main); margin-bottom: 8px;
         }
-        .btn:hover { background: rgba(255,255,255,0.08); border-color: var(--border-hover); }
-        .btn-primary { background: var(--primary); border-color: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+        .btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+        .btn-primary { background: var(--text-main); color: var(--bg-base); border: none; }
+        .btn-primary:hover { background: #fff; transform: translateY(-1px); }
+        .btn-icon { padding: 6px; width: auto; aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--bg-base); }
+        .btn-icon:hover { background: var(--bg-hover); color: var(--primary); border-color: var(--primary); }
         
-        .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px; color: var(--text-muted);}
-        
-        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .layout-btn { font-size: 11px; padding: 8px 4px; text-align: center; }
+        .toggle-group { display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-bottom: 12px; color: var(--text-muted);}
+        .switch { position: relative; display: inline-block; width: 32px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(14px); }
 
         /* Workspace & Canvas */
         .workspace {
             flex: 1; position: relative; overflow: hidden; 
-            background: radial-gradient(circle at 50% 50%, #1f1f22 1px, transparent 1px);
-            background-size: 24px 24px;
-            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 1px, transparent 1px);
+            background-size: 32px 32px; display: flex; justify-content: center; align-items: center;
         }
-        
         #canvas-container { position: absolute; transform-origin: 0 0; }
-        
         canvas { 
-            display: block; 
-            background: var(--canvas-bg);
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 25px 50px -12px rgba(0,0,0,0.5);
+            display: block; background: var(--canvas-bg);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 30px 60px -15px rgba(0,0,0,0.6);
         }
 
-        /* Toolbar */
-        .toolbar {
+        /* Toolbars & Overlays */
+        .toolbar-bottom {
             position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
-            background: var(--bg-panel-glass); backdrop-filter: blur(12px); padding: 6px 12px;
-            border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: flex; gap: 10px; z-index: 20; font-size: 12px; align-items: center;
+            background: var(--bg-panel-glass); backdrop-filter: blur(12px); padding: 6px;
+            border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            display: flex; gap: 4px; z-index: 20; font-size: 12px; align-items: center;
         }
-        .toolbar span { cursor: pointer; padding: 6px 10px; border-radius: 6px; color: var(--text-muted); transition: 0.2s;}
-        .toolbar span:hover { background: rgba(255,255,255,0.1); color: white; }
-        .divider { width: 1px; height: 16px; background: var(--border); }
+        .toolbar-bottom span { 
+            cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); 
+            color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .toolbar-bottom span:hover { background: var(--bg-hover); color: white; }
+        .divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
 
-        /* File Input Hide */
+        .minimap-container {
+            position: absolute; bottom: 24px; left: 24px; width: 160px; height: 100px;
+            background: var(--bg-panel-glass); border: 1px solid var(--border); border-radius: var(--radius-md);
+            overflow: hidden; z-index: 20; backdrop-filter: blur(12px);
+        }
+        #minimap { width: 100%; height: 100%; display: block; }
+        .minimap-viewport { position: absolute; border: 1px solid var(--primary); background: rgba(0,112,243,0.1); cursor: move; }
+
+        .analyzer-score {
+            text-align: center; padding: 16px; background: rgba(0, 198, 0, 0.05); border: 1px solid rgba(0, 198, 0, 0.2);
+            border-radius: var(--radius-md); margin-bottom: 16px;
+        }
+        .score-val { font-size: 24px; font-weight: 700; color: var(--success); font-family: var(--font-secondary); }
+
+        /* Layers Panel */
+        .layer-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+        .layer-item {
+            display: flex; align-items: center; padding: 6px 8px; font-size: 11px; color: var(--text-muted);
+            border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent;
+        }
+        .layer-item:hover { background: var(--bg-hover); }
+        .layer-item.selected { background: var(--selection-bg); color: var(--text-main); border-color: var(--selection-border); }
+        .layer-name { flex: 1; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .layer-actions { display: flex; gap: 4px; opacity: 0; }
+        .layer-item:hover .layer-actions, .layer-item.selected .layer-actions { opacity: 1; }
+        .layer-icon { cursor: pointer; padding: 2px; border-radius: 2px; }
+        .layer-icon:hover { color: white; background: var(--border); }
+
+        /* Floating Text Input */
+        #floating-input {
+            position: absolute; z-index: 100; display: none; background: transparent; border: 1px dashed var(--primary);
+            outline: none; padding: 0; margin: 0; resize: none; overflow: hidden; white-space: pre-wrap;
+        }
+
+        #empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6;}
         input[type="file"] { display: none; }
         
-        #empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6;}
+        /* Tooltips */
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px;
+            white-space: nowrap; pointer-events: none; margin-bottom: 6px; z-index: 100; border: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="header"><h1>✨ Layout Architect Pro</h1></div>
-
-        <div class="section">
-            <div class="section-title">Canvas Setup</div>
-            <div class="grid-2">
-                <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
-                <div class="control-group"><label>Height</label><input type="number" id="c-h" value="720"></div>
-            </div>
-            <button class="btn" onclick="app.updateCanvas()">Update & Fit Screen</button>
-        </div>
-
-        <div class="section fill">
-            <div class="section-title">20 Smart Layouts <span>🪄</span></div>
-            <select id="layout-select" style="margin-bottom: 10px;">
-                <option value="1">1. Standard Dashboard</option>
-                <option value="2">2. 3 Columns Equal</option>
-                <option value="3">3. 4 Columns Equal</option>
-                <option value="4">4. Sidebar + Content</option>
-                <option value="5">5. Top Header + 3 Cols</option>
-                <option value="6">6. Grid 2x2</option>
-                <option value="7">7. Grid 3x3</option>
-                <option value="8">8. Dual Massive Charts</option>
-                <option value="9">9. 6 KPIs + Main Body</option>
-                <option value="10">10. Asymmetric Left Focus</option>
-                <option value="11">11. Asymmetric Right Focus</option>
-                <option value="12">12. Executive Center Focus</option>
-                <option value="13">13. Marketing (Side + Top KPIs)</option>
-                <option value="14">14. Financial (Header + Matrix)</option>
-                <option value="15">15. Single Massive Card</option>
-                <option value="16">16. Top Heavy (Big Top, Small Bottom)</option>
-                <option value="17">17. Bottom Heavy</option>
-                <option value="18">18. 5 Column Metrics</option>
-                <option value="19">19. Floating Island Cards</option>
-                <option value="20">20. Minimalist Focus</option>
-            </select>
-            <button class="btn btn-primary" onclick="app.generateLayout()">⚡ Apply Layout</button>
-            
-            <div class="divider" style="width:100%; height:1px; margin: 15px 0;"></div>
-            
-            <div class="section-title">Add Elements</div>
-            <button class="btn" onclick="app.addBox()">🟦 Add Box</button>
-            <button class="btn" onclick="document.getElementById('image-upload').click()">🖼️ Add Image</button>
-            <input type="file" id="image-upload" accept="image/png, image/jpeg, image/svg+xml" onchange="app.addImage(event)">
-        </div>
-
-        <div class="section">
-            <button class="btn btn-primary" onclick="app.exportPNG()">📥 Export PNG (2x)</button>
+    <div id="intro-screen">
+        <div class="intro-card">
+            <h1 class="intro-brand">Layout Maker Pro</h1>
+            <p>Professional Dashboard Architecture Tool</p>
+            <input type="text" id="user-name-input" class="intro-input" placeholder="Enter your name" autocomplete="off" onkeydown="if(event.key==='Enter') startApp()">
+            <button class="intro-btn" onclick="startApp()">Enter Workspace →</button>
         </div>
     </div>
 
-    <div class="workspace" id="workspace">
-        <div id="canvas-container">
-            <canvas id="appCanvas"></canvas>
-        </div>
-        
-        <div class="toolbar">
-            <span onclick="app.undo()" title="Undo">↩️</span>
-            <span onclick="app.redo()" title="Redo">↪️</span>
-            <div class="divider"></div>
-            <span onclick="app.fitToScreen()">🖥️ Fit</span>
-            <span onclick="app.setZoom(app.zoom + 0.1)">➕</span>
-            <span id="zoom-indicator">100%</span>
-            <span onclick="app.setZoom(app.zoom - 0.1)">➖</span>
-            <div class="divider"></div>
-            <span onclick="app.clearCanvas()" style="color: #ef4444;">🗑️ Clear</span>
-        </div>
-    </div>
-
-    <div class="sidebar right">
-        <div class="header"><h1>Properties</h1></div>
-        
-        <div id="empty-state">
-            Select an element (or drag to select multiple) to edit properties.<br><br>
-            <i>💡 Tip: Hold Shift to select multiple elements. Space + Drag to Pan.</i>
-        </div>
-        
-        <div id="properties-panel" class="section fill" style="display:none;">
-            <div id="multi-warning" style="display:none; color: var(--accent); font-size: 11px; margin-bottom: 10px;">
-                ⚠️ Multiple Elements Selected
+    <div id="app-container">
+        <div class="panel sidebar-left">
+            <div class="header">
+                <div class="brand-title intro-brand">Layout Maker By Basel</div>
+                <div class="welcome-text" id="welcome-msg">Welcome, Designer</div>
             </div>
 
-            <div class="section-title">Position & Size</div>
-            <div class="grid-2">
-                <div class="control-group"><label>X</label><input type="number" id="p-x" oninput="app.updateSelected()"></div>
-                <div class="control-group"><label>Y</label><input type="number" id="p-y" oninput="app.updateSelected()"></div>
-                <div class="control-group"><label>W</label><input type="number" id="p-w" oninput="app.updateSelected()"></div>
-                <div class="control-group"><label>H</label><input type="number" id="p-h" oninput="app.updateSelected()"></div>
+            <div class="section">
+                <div class="section-title">Workspace Setup</div>
+                <div class="grid-2">
+                    <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
+                    <div class="control-group"><label>Height</label><input type="number" id="c-h" value="720"></div>
+                </div>
+                <div class="toggle-group">
+                    <span>Power BI Safe Mode</span>
+                    <label class="switch"><input type="checkbox" id="pbi-mode" onchange="app.togglePBIMode()"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-group">
+                    <span>12-Column Grid</span>
+                    <label class="switch"><input type="checkbox" id="show-grid" onchange="app.render()"><span class="slider"></span></label>
+                </div>
             </div>
 
-            <div class="section-title" style="margin-top: 15px;">Appearance</div>
-            <div class="grid-2">
-                <div class="control-group"><label>Radius</label><input type="number" id="p-r" oninput="app.updateSelected()"></div>
-                <div class="control-group"><label>Opacity</label><input type="number" step="0.1" min="0" max="1" id="p-o" oninput="app.updateSelected()"></div>
+            <div class="section">
+                <div class="section-title">Insert Elements</div>
+                <div class="grid-2">
+                    <button class="btn" onclick="app.addBox()">🟦 Box</button>
+                    <button class="btn" onclick="app.addText()">🔤 Text</button>
+                    <button class="btn" onclick="document.getElementById('image-upload').click()" style="grid-column: span 2;">🖼️ Image</button>
+                    <input type="file" id="image-upload" accept="image/png, image/jpeg, image/svg+xml" onchange="app.addImage(event)">
+                </div>
             </div>
-            <div class="control-group"><label>Color</label><input type="color" id="p-c" oninput="app.updateSelected()"></div>
+
+            <div class="section fill" style="display:flex; flex-direction:column;">
+                <div class="section-title">Layers 
+                    <div style="display:flex;gap:4px;">
+                        <span onclick="app.layerMove('up')" title="Bring Forward">↑</span>
+                        <span onclick="app.layerMove('down')" title="Send Backward">↓</span>
+                    </div>
+                </div>
+                <ul class="layer-list" id="layer-list" style="flex:1; overflow-y:auto;"></ul>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Library & Export</div>
+                <select id="layout-select" class="btn" style="text-align:left; appearance:none; margin-bottom:8px;">
+                    <option value="" disabled selected>Load Template...</option>
+                    <option value="1">Standard Dashboard</option>
+                    <option value="2">Executive Summary</option>
+                    <option value="3">Financial Matrix</option>
+                    <option value="4">Marketing Layout</option>
+                    <option value="5">KPI Focus (Top)</option>
+                    <option value="6">Sidebar Navigation</option>
+                </select>
+                <div class="grid-2">
+                    <button class="btn" onclick="app.generateLayout()">Load</button>
+                    <button class="btn" onclick="app.saveJSON()">💾 Save</button>
+                </div>
+                <button class="btn btn-primary" onclick="app.exportPNG()">📥 Export PBI Background</button>
+            </div>
+        </div>
+
+        <div class="workspace" id="workspace">
+            <div id="canvas-container">
+                <canvas id="appCanvas"></canvas>
+                <textarea id="floating-input"></textarea>
+            </div>
             
-            <label class="checkbox-group" style="margin-top: 15px;">
-                <input type="checkbox" id="p-shadow" onchange="app.updateSelected()"> Glass Shadow
-            </label>
+            <div class="minimap-container">
+                <canvas id="minimap"></canvas>
+                <div class="minimap-viewport" id="minimap-vp"></div>
+            </div>
 
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="app.duplicateSelected()">📋 Duplicate</button>
-                <button class="btn" onclick="app.deleteSelected()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">🗑️ Delete</button>
+            <div class="toolbar-bottom">
+                <span onclick="app.undo()" data-tooltip="Undo (Ctrl+Z)">↩️</span>
+                <span onclick="app.redo()" data-tooltip="Redo (Ctrl+Y)">↪️</span>
+                <div class="divider"></div>
+                <span onclick="app.fitToScreen()" data-tooltip="Fit to Screen">🖥️</span>
+                <span onclick="app.setZoom(app.zoom - 0.1)" data-tooltip="Zoom Out">➖</span>
+                <span id="zoom-indicator" style="width: 45px; justify-content:center; font-family:var(--font-mono);">100%</span>
+                <span onclick="app.setZoom(app.zoom + 0.1)" data-tooltip="Zoom In">➕</span>
+                <div class="divider"></div>
+                <span onclick="app.clearCanvas()" style="color: var(--danger);" data-tooltip="Clear All">🗑️</span>
+            </div>
+        </div>
+
+        <div class="panel sidebar-right">
+            <div class="header">
+                <div class="brand-title">Design Properties</div>
+            </div>
+            
+            <div id="empty-state">
+                Select an element to edit properties.<br><br>
+                <span style="color:var(--text-disabled); font-size:10px;">Shift+Click to multi-select.<br>Space+Drag to Pan.</span>
+            </div>
+            
+            <div id="properties-panel" class="section fill" style="display:none;">
+                
+                <div class="section-title">Alignment & Distribution</div>
+                <div class="grid-4">
+                    <button class="btn btn-icon" onclick="app.align('left')" data-tooltip="Align Left">⇤</button>
+                    <button class="btn btn-icon" onclick="app.align('center')" data-tooltip="Align Center">⇹</button>
+                    <button class="btn btn-icon" onclick="app.align('right')" data-tooltip="Align Right">⇥</button>
+                    <button class="btn btn-icon" onclick="app.distribute('h')" data-tooltip="Distribute Horizontally">↔</button>
+                    <button class="btn btn-icon" onclick="app.align('top')" data-tooltip="Align Top">⤒</button>
+                    <button class="btn btn-icon" onclick="app.align('middle')" data-tooltip="Align Middle">⇕</button>
+                    <button class="btn btn-icon" onclick="app.align('bottom')" data-tooltip="Align Bottom">⤓</button>
+                    <button class="btn btn-icon" onclick="app.distribute('v')" data-tooltip="Distribute Vertically">↕</button>
+                </div>
+
+                <div class="section-title">Auto Layout (Flex)</div>
+                <div class="grid-2">
+                    <button class="btn" onclick="app.autoLayout('row')">Row (→)</button>
+                    <button class="btn" onclick="app.autoLayout('col')">Col (↓)</button>
+                    <div class="control-group" style="grid-column: span 2; flex-direction:row; align-items:center;">
+                        <label style="width:40px;">Gap</label>
+                        <input type="number" id="p-gap" value="16" style="flex:1;">
+                    </div>
+                </div>
+
+                <div class="divider" style="width:100%; height:1px; margin: 16px 0;"></div>
+
+                <div class="section-title">Geometry</div>
+                <div class="grid-2">
+                    <div class="control-group"><label>X</label><input type="number" id="p-x" oninput="app.updateSelected()"></div>
+                    <div class="control-group"><label>Y</label><input type="number" id="p-y" oninput="app.updateSelected()"></div>
+                    <div class="control-group"><label>W</label><input type="number" id="p-w" oninput="app.updateSelected()"></div>
+                    <div class="control-group"><label>H</label><input type="number" id="p-h" oninput="app.updateSelected()"></div>
+                </div>
+
+                <div id="text-props" style="display:none;">
+                    <div class="section-title" style="margin-top: 8px;">Text Content</div>
+                    <div class="control-group"><input type="text" id="p-text-val" oninput="app.updateSelected()"></div>
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Size</label>
+                            <input type="number" id="p-fsize" oninput="app.updateSelected()">
+                        </div>
+                        <div class="control-group">
+                            <label>Weight</label>
+                            <select id="p-fweight" onchange="app.updateSelected()">
+                                <option value="300">Light</option><option value="400">Regular</option>
+                                <option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 8px;">Appearance</div>
+                <div class="grid-2">
+                    <div class="control-group"><label>Radius</label><input type="number" id="p-r" oninput="app.updateSelected()"></div>
+                    <div class="control-group"><label>Opacity</label><input type="number" step="0.1" min="0" max="1" id="p-o" oninput="app.updateSelected()"></div>
+                    <div class="control-group" style="grid-column: span 2;">
+                        <label>Color</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="color" id="p-c" oninput="app.updateSelected()" style="flex:1;">
+                            <input type="text" id="p-c-hex" oninput="document.getElementById('p-c').value=this.value; app.updateSelected()" style="flex:2;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="toggle-group" style="margin-top: 8px;">
+                    <span>Glass Shadow</span>
+                    <label class="switch"><input type="checkbox" id="p-shadow" onchange="app.updateSelected()"><span class="slider"></span></label>
+                </div>
+
+                <div class="divider" style="width:100%; height:1px; margin: 16px 0;"></div>
+
+                <div class="section-title">Design Analyzer</div>
+                <div class="analyzer-score">
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Score</div>
+                    <div class="score-val" id="analyzer-score">--/100</div>
+                    <div id="analyzer-msg" style="font-size:11px; color:var(--text-muted); margin-top:4px;">Analyze elements to see score</div>
+                </div>
             </div>
         </div>
     </div>
 
 <script>
+// --- Pre-App Logic ---
+function startApp() {
+    const name = document.getElementById('user-name-input').value.trim() || 'Designer';
+    localStorage.setItem('pbi_designer_name', name);
+    document.getElementById('welcome-msg').innerText = `Welcome, ${name}`;
+    
+    document.getElementById('intro-screen').style.opacity = '0';
+    document.getElementById('intro-screen').style.visibility = 'hidden';
+    document.getElementById('app-container').style.opacity = '1';
+    
+    // Init Engine
+    window.app = new LayoutEnginePro();
+}
+
+window.onload = () => {
+    const savedName = localStorage.getItem('pbi_designer_name');
+    if(savedName) document.getElementById('user-name-input').value = savedName;
+};
+
+// --- Core Engine ---
 class LayoutEnginePro {
     constructor() {
         this.canvas = document.getElementById('appCanvas');
@@ -241,51 +436,74 @@ class LayoutEnginePro {
         this.container = document.getElementById('canvas-container');
         this.workspace = document.getElementById('workspace');
         
-        // Data State
-        this.width = 1280; this.height = 720;
-        this.boxes = [];
-        this.selectedIds = [];
+        // Minimap
+        this.miniCanvas = document.getElementById('minimap');
+        this.miniCtx = this.miniCanvas.getContext('2d');
+        this.miniVp = document.getElementById('minimap-vp');
         
-        // Viewport State
+        // State
+        this.width = parseInt(document.getElementById('c-w').value); 
+        this.height = parseInt(document.getElementById('c-h').value);
+        this.boxes = []; // { id, type: rect|image|text, x, y, w, h, r, color, opacity, shadow, locked, hidden, text, fontSize, fontWeight }
+        this.selectedIds = [];
+        this.pbiMode = false;
+        
+        // Viewport
         this.zoom = 1; this.panX = 0; this.panY = 0;
         
-        // Interaction State
-        this.isPanning = false; this.isDragging = false; this.isResizing = false;
-        this.isSelecting = false;
+        // Interactions
+        this.state = 'idle'; // idle, pan, drag, resize, select, edit_text
         this.resizeHandle = null;
-        this.dragOffsets = {}; // { id: {dx, dy} }
+        this.dragOffsets = {}; 
         this.selectionStart = {x:0, y:0};
-        this.selectionBox = null; // {x,y,w,h}
+        this.selectionBox = null;
+        this.guides = { v: null, h: null }; // smart guides
         
         // History
         this.history = []; this.historyStep = -1;
+
+        // Bounding Box for multi-select
+        this.bbox = null;
 
         this.init();
     }
 
     init() {
-        this.updateCanvas(false);
+        this.updateCanvasDimensions(false);
         this.bindEvents();
-        this.saveState();
+        this.loadState();
+        if(this.boxes.length === 0) this.saveHistory();
         
-        // Auto-fit after slight delay to ensure DOM is ready
-        setTimeout(() => { this.fitToScreen(); }, 50);
+        setTimeout(() => { this.fitToScreen(); this.renderAll(); }, 50);
     }
 
-    updateCanvas(save = true) {
+    // --- Core Updates ---
+    updateCanvasDimensions(save = true) {
         this.width = parseInt(document.getElementById('c-w').value) || 1280;
         this.height = parseInt(document.getElementById('c-h').value) || 720;
         this.canvas.width = this.width; this.canvas.height = this.height;
         this.container.style.width = this.width + 'px';
         this.container.style.height = this.height + 'px';
-        if(save) { this.fitToScreen(); this.saveState(); }
-        this.render();
+        
+        // Update minimap scale
+        const aspect = this.width / this.height;
+        if(aspect > 1.6) { this.miniCanvas.width = 160; this.miniCanvas.height = 160 / aspect; }
+        else { this.miniCanvas.height = 100; this.miniCanvas.width = 100 * aspect; }
+        
+        if(save) { this.fitToScreen(); this.saveHistory(); }
+        this.renderAll();
     }
 
-    // --- Viewport Management ---
+    togglePBIMode() {
+        this.pbiMode = document.getElementById('pbi-mode').checked;
+        this.analyzeDesign();
+        this.renderAll();
+    }
+
+    // --- Viewport ---
     fitToScreen() {
         const ws = this.workspace.getBoundingClientRect();
-        const padding = 80;
+        const padding = 100;
         const scaleX = (ws.width - padding) / this.width;
         const scaleY = (ws.height - padding) / this.height;
         this.zoom = Math.min(scaleX, scaleY, 1.5);
@@ -295,13 +513,14 @@ class LayoutEnginePro {
     }
 
     setZoom(level) {
-        this.zoom = Math.max(0.1, Math.min(4, level));
+        this.zoom = Math.max(0.1, Math.min(5, level));
         this.applyTransform();
     }
 
     applyTransform() {
         this.container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
         document.getElementById('zoom-indicator').innerText = Math.round(this.zoom * 100) + '%';
+        this.updateMinimapViewport();
     }
 
     getMousePos(e) {
@@ -309,18 +528,19 @@ class LayoutEnginePro {
         return { x: (e.clientX - rect.left) / this.zoom, y: (e.clientY - rect.top) / this.zoom };
     }
 
-    // --- History ---
-    saveState() {
-        // Create deep copy, avoiding Image object circular refs
+    // --- History & Storage ---
+    saveHistory() {
         const stateBoxes = this.boxes.map(b => {
             const copy = {...b};
-            if(copy.type === 'image') delete copy.imgObj; // Remove raw image object for JSON
+            if(copy.type === 'image') delete copy.imgObj; 
             return copy;
         });
         const state = JSON.stringify({ w: this.width, h: this.height, boxes: stateBoxes });
         this.history = this.history.slice(0, this.historyStep + 1);
         this.history.push(state);
         this.historyStep++;
+        localStorage.setItem('pbi_layout_autosave', state);
+        this.analyzeDesign();
     }
 
     undo() { if(this.historyStep > 0) this.restoreState(this.history[--this.historyStep]); }
@@ -330,56 +550,54 @@ class LayoutEnginePro {
         const data = JSON.parse(stateStr);
         this.width = data.w; document.getElementById('c-w').value = this.width;
         this.height = data.h; document.getElementById('c-h').value = this.height;
-        this.updateCanvas(false);
+        this.updateCanvasDimensions(false);
         
-        // Rebuild image objects
         this.boxes = data.boxes;
         this.boxes.forEach(b => {
             if(b.type === 'image' && b.src) {
                 b.imgObj = new Image();
-                b.imgObj.onload = () => this.render();
+                b.imgObj.onload = () => this.renderAll();
                 b.imgObj.src = b.src;
             }
         });
         this.selectedIds = [];
-        this.syncUI(); this.render();
+        this.updateBBox(); this.syncUI(); this.renderAll();
+    }
+    
+    loadState() {
+        const saved = localStorage.getItem('pbi_layout_autosave');
+        if(saved) this.restoreState(saved);
+    }
+    
+    saveJSON() {
+        const stateBoxes = this.boxes.map(b => { const c={...b}; delete c.imgObj; return c; });
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({w:this.width, h:this.height, boxes:stateBoxes}, null, 2));
+        const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "layout.json"); dl.click();
     }
 
-    // --- Interaction Core ---
+    // --- Events Core ---
     bindEvents() {
-        // Pan & Zoom
         this.workspace.addEventListener('wheel', (e) => {
-            if(e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                this.setZoom(this.zoom - (e.deltaY > 0 ? 0.05 : -0.05));
-            } else {
-                // Pan with wheel
-                this.panX -= e.deltaX; this.panY -= e.deltaY;
-                this.applyTransform();
-            }
+            if(e.ctrlKey || e.metaKey) { e.preventDefault(); this.setZoom(this.zoom - (e.deltaY > 0 ? 0.05 : -0.05)); } 
+            else { this.panX -= e.deltaX; this.panY -= e.deltaY; this.applyTransform(); }
         }, { passive: false });
 
-        // Mouse Down
         this.workspace.addEventListener('mousedown', (e) => {
+            if(this.state === 'edit_text') this.commitTextEdit();
             if(e.button === 1 || (e.button === 0 && e.code === 'Space')) {
-                this.isPanning = true; this.workspace.style.cursor = 'grabbing';
-                return;
+                this.state = 'pan'; this.workspace.style.cursor = 'grabbing'; return;
             }
             if(e.target !== this.canvas) return;
-            
             const pos = this.getMousePos(e);
             
-            // 1. Check Resize Handle (only if 1 item selected)
-            if(this.selectedIds.length === 1) {
-                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
-                const hs = 10; // handle size
-                if(pos.x >= b.x+b.w-hs && pos.x <= b.x+b.w && pos.y >= b.y+b.h-hs && pos.y <= b.y+b.h) {
-                    this.isResizing = true; this.resizeHandle = 'se'; return;
-                }
+            // Check Handles (if selection exists)
+            if(this.selectedIds.length > 0 && this.bbox) {
+                const handle = this.getHandleAtPos(pos);
+                if(handle) { this.state = 'resize'; this.resizeHandle = handle; return; }
             }
 
-            // 2. Check Box Selection
-            let clickedBox = [...this.boxes].reverse().find(b => pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h);
+            // Check Elements (reverse for z-index)
+            let clickedBox = [...this.boxes].reverse().find(b => !b.locked && !b.hidden && pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h);
             
             if(clickedBox) {
                 if(e.shiftKey) {
@@ -389,190 +607,382 @@ class LayoutEnginePro {
                     if(!this.selectedIds.includes(clickedBox.id)) this.selectedIds = [clickedBox.id];
                 }
                 
-                // Setup dragging for all selected
-                this.isDragging = true;
+                this.state = 'drag';
                 this.dragOffsets = {};
                 this.selectedIds.forEach(id => {
                     const b = this.boxes.find(x => x.id === id);
                     this.dragOffsets[id] = { dx: pos.x - b.x, dy: pos.y - b.y };
                 });
             } else {
-                // Marquee Selection Start
-                this.selectedIds = [];
-                this.isSelecting = true;
+                this.selectedIds = []; this.state = 'select';
                 this.selectionStart = { x: pos.x, y: pos.y };
                 this.selectionBox = { x: pos.x, y: pos.y, w: 0, h: 0 };
             }
-            this.syncUI(); this.render();
+            this.updateBBox(); this.syncUI(); this.renderAll();
         });
 
-        // Mouse Move
         window.addEventListener('mousemove', (e) => {
-            if(this.isPanning) {
-                this.panX += e.movementX; this.panY += e.movementY;
-                this.applyTransform(); return;
-            }
+            if(this.state === 'pan') { this.panX += e.movementX; this.panY += e.movementY; this.applyTransform(); return; }
+            if(this.state === 'idle') { this.updateCursor(this.getMousePos(e)); return; }
             
             const pos = this.getMousePos(e);
 
-            if(this.isDragging) {
+            if(this.state === 'drag') {
+                let snapPos = { x: pos.x, y: pos.y };
+                // Calculate Smart Guides
+                this.guides = {v:null, h:null};
+                const leadId = this.selectedIds[this.selectedIds.length-1];
+                const leadB = this.boxes.find(x=>x.id===leadId);
+                const offset = this.dragOffsets[leadId];
+                let nx = pos.x - offset.dx; let ny = pos.y - offset.dy;
+                
+                // Snap logic
+                this.boxes.filter(b=>!this.selectedIds.includes(b.id)).forEach(target => {
+                    if(Math.abs(nx - target.x) < 5) { nx = target.x; this.guides.v = target.x; }
+                    if(Math.abs(ny - target.y) < 5) { ny = target.y; this.guides.h = target.y; }
+                });
+
+                const dx = nx - leadB.x; const dy = ny - leadB.y;
                 this.selectedIds.forEach(id => {
                     const b = this.boxes.find(x => x.id === id);
-                    const offset = this.dragOffsets[id];
-                    // Snap to 10px grid
-                    b.x = Math.round((pos.x - offset.dx)/10)*10;
-                    b.y = Math.round((pos.y - offset.dy)/10)*10;
+                    b.x += dx; b.y += dy;
                 });
-                this.syncUI(); this.render();
+                this.updateBBox(); this.syncUI(); this.renderAll();
             } 
-            else if(this.isResizing) {
-                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
-                b.w = Math.max(20, Math.round((pos.x - b.x)/10)*10);
-                b.h = Math.max(20, Math.round((pos.y - b.y)/10)*10);
-                this.syncUI(); this.render();
+            else if(this.state === 'resize') {
+                this.handleResize(pos);
+                this.updateBBox(); this.syncUI(); this.renderAll();
             }
-            else if(this.isSelecting) {
+            else if(this.state === 'select') {
                 this.selectionBox.w = pos.x - this.selectionStart.x;
                 this.selectionBox.h = pos.y - this.selectionStart.y;
-                
-                // Calculate selection intersections
-                const rect = {
-                    x: Math.min(this.selectionStart.x, pos.x),
-                    y: Math.min(this.selectionStart.y, pos.y),
-                    w: Math.abs(this.selectionBox.w),
-                    h: Math.abs(this.selectionBox.h)
-                };
-                
-                this.selectedIds = this.boxes.filter(b => 
-                    b.x < rect.x + rect.w && b.x + b.w > rect.x &&
-                    b.y < rect.y + rect.h && b.y + b.h > rect.y
-                ).map(b => b.id);
-                
-                this.render();
+                const rect = { x: Math.min(this.selectionStart.x, pos.x), y: Math.min(this.selectionStart.y, pos.y), w: Math.abs(this.selectionBox.w), h: Math.abs(this.selectionBox.h) };
+                this.selectedIds = this.boxes.filter(b => !b.locked && !b.hidden && b.x < rect.x + rect.w && b.x + b.w > rect.x && b.y < rect.y + rect.h && b.y + b.h > rect.y).map(b => b.id);
+                this.updateBBox(); this.renderAll();
             }
         });
 
-        // Mouse Up
         window.addEventListener('mouseup', () => {
-            if(this.isPanning) { this.isPanning = false; this.workspace.style.cursor = 'default'; }
-            if(this.isDragging || this.isResizing) {
-                this.isDragging = false; this.isResizing = false;
-                this.saveState();
+            if(this.state === 'pan') { this.state = 'idle'; this.workspace.style.cursor = 'default'; }
+            if(this.state === 'drag' || this.state === 'resize') {
+                this.state = 'idle'; this.guides = {v:null, h:null};
+                this.saveHistory(); this.renderAll();
             }
-            if(this.isSelecting) {
-                this.isSelecting = false; this.selectionBox = null;
-                this.syncUI(); this.render();
+            if(this.state === 'select') {
+                this.state = 'idle'; this.selectionBox = null;
+                this.syncUI(); this.renderAll();
             }
         });
 
-        // Keyboard
+        this.canvas.addEventListener('dblclick', (e) => {
+            if(this.selectedIds.length === 1) {
+                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+                if(b.type === 'text') this.startTextEdit(b);
+            }
+        });
+
         window.addEventListener('keydown', (e) => {
-            if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            const step = e.shiftKey ? 10 : 1;
+            
             if(e.key === 'Delete' || e.key === 'Backspace') { this.deleteSelected(); }
+            if(e.key === 'ArrowUp') { this.moveSelected(0, -step); e.preventDefault();}
+            if(e.key === 'ArrowDown') { this.moveSelected(0, step); e.preventDefault();}
+            if(e.key === 'ArrowLeft') { this.moveSelected(-step, 0); e.preventDefault();}
+            if(e.key === 'ArrowRight') { this.moveSelected(step, 0); e.preventDefault();}
+            
             if(e.ctrlKey || e.metaKey) {
                 if(e.key === 'z') { e.preventDefault(); this.undo(); }
                 if(e.key === 'y') { e.preventDefault(); this.redo(); }
-                if(e.key === 'd' && this.selectedIds.length > 0) { e.preventDefault(); this.duplicateSelected(); }
+                if(e.key === 'd') { e.preventDefault(); this.duplicateSelected(); }
+                if(e.key === 'g') { e.preventDefault(); /* Visual grouping could be added here */ }
             }
-            if(e.code === 'Space') { this.isPanning = true; this.workspace.style.cursor = 'grabbing'; }
+            if(e.code === 'Space' && this.state === 'idle') { this.state = 'pan'; this.workspace.style.cursor = 'grabbing'; }
         });
         window.addEventListener('keyup', (e) => {
-            if(e.code === 'Space') { this.isPanning = false; this.workspace.style.cursor = 'default'; }
+            if(e.code === 'Space' && this.state === 'pan') { this.state = 'idle'; this.workspace.style.cursor = 'default'; }
         });
     }
 
-    // --- Elements Creation ---
+    // --- Geometry & Handles ---
+    updateBBox() {
+        if(this.selectedIds.length === 0) { this.bbox = null; return; }
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        this.selectedIds.forEach(id => {
+            const b = this.boxes.find(x => x.id === id);
+            minX = Math.min(minX, b.x); minY = Math.min(minY, b.y);
+            maxX = Math.max(maxX, b.x + b.w); maxY = Math.max(maxY, b.y + b.h);
+        });
+        this.bbox = { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    }
+
+    getHandleAtPos(pos) {
+        const hs = 8; const hs2 = hs/2;
+        const bx = this.bbox.x, by = this.bbox.y, bw = this.bbox.w, bh = this.bbox.h;
+        const pts = {
+            nw: {x: bx, y: by}, ne: {x: bx+bw, y: by}, sw: {x: bx, y: by+bh}, se: {x: bx+bw, y: by+bh},
+            n: {x: bx+bw/2, y: by}, s: {x: bx+bw/2, y: by+bh}, w: {x: bx, y: by+bh/2}, e: {x: bx+bw, y: by+bh/2}
+        };
+        for(let key in pts) {
+            if(pos.x >= pts[key].x - hs2 && pos.x <= pts[key].x + hs2 && pos.y >= pts[key].y - hs2 && pos.y <= pts[key].y + hs2) return key;
+        }
+        return null;
+    }
+
+    updateCursor(pos) {
+        if(this.selectedIds.length > 0 && this.bbox) {
+            const handle = this.getHandleAtPos(pos);
+            if(handle) {
+                const cursors = {nw:'nwse', ne:'nesw', sw:'nesw', se:'nwse', n:'ns', s:'ns', w:'ew', e:'ew'};
+                this.canvas.style.cursor = cursors[handle] + '-resize'; return;
+            }
+        }
+        this.canvas.style.cursor = 'default';
+    }
+
+    handleResize(pos) {
+        // Simple resizing for single element. Multi-resize scales proportionally (simplified to single resize logic for bounding box)
+        if(this.selectedIds.length !== 1) return; // Complex multi-scale omitted for brevity
+        const b = this.boxes.find(x => x.id === this.selectedIds[0]);
+        let nx = b.x, ny = b.y, nw = b.w, nh = b.h;
+        if(this.resizeHandle.includes('e')) nw = Math.max(20, pos.x - b.x);
+        if(this.resizeHandle.includes('s')) nh = Math.max(20, pos.y - b.y);
+        if(this.resizeHandle.includes('w')) { nw = Math.max(20, b.x + b.w - pos.x); nx = b.x + b.w - nw; }
+        if(this.resizeHandle.includes('n')) { nh = Math.max(20, b.y + b.h - pos.y); ny = b.y + b.h - nh; }
+        b.x = nx; b.y = ny; b.w = nw; b.h = nh;
+    }
+
+    // --- Actions ---
     addBox() {
-        this.boxes.push({ id: Date.now().toString(), type: 'rect', x: 50, y: 50, w: 200, h: 150, r: 16, color: '#ffffff', opacity: 1, shadow: true });
+        this.boxes.push({ id: Date.now().toString(), type: 'rect', x: 50, y: 50, w: 300, h: 200, r: 8, color: '#ffffff', opacity: 1, shadow: true, locked:false, hidden:false });
         this.selectedIds = [this.boxes[this.boxes.length-1].id];
-        this.syncUI(); this.render(); this.saveState();
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+    
+    addText() {
+        this.boxes.push({ id: Date.now().toString(), type: 'text', x: 50, y: 50, w: 200, h: 40, color: '#111111', opacity: 1, text: 'Heading Text', fontSize: 24, fontWeight: 600, locked:false, hidden:false });
+        this.selectedIds = [this.boxes[this.boxes.length-1].id];
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
     }
 
     addImage(e) {
-        const file = e.target.files[0];
-        if(!file) return;
+        const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
                 const aspect = img.height / img.width;
-                this.boxes.push({ id: Date.now().toString(), type: 'image', x: 50, y: 50, w: 200, h: 200 * aspect, r: 0, opacity: 1, shadow: false, imgObj: img, src: event.target.result });
+                this.boxes.push({ id: Date.now().toString(), type: 'image', x: 50, y: 50, w: 300, h: 300 * aspect, r: 0, opacity: 1, shadow: false, imgObj: img, src: event.target.result, locked:false, hidden:false });
                 this.selectedIds = [this.boxes[this.boxes.length-1].id];
-                this.syncUI(); this.render(); this.saveState();
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+                this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+            }; img.src = event.target.result;
+        }; reader.readAsDataURL(file);
     }
 
     deleteSelected() {
         this.boxes = this.boxes.filter(b => !this.selectedIds.includes(b.id));
-        this.selectedIds = [];
-        this.syncUI(); this.render(); this.saveState();
+        this.selectedIds = []; this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
     }
 
     duplicateSelected() {
         const newIds = [];
         this.selectedIds.forEach(id => {
             const b = this.boxes.find(x => x.id === id);
-            const dup = {...b, id: Math.random().toString(), x: b.x + 20, y: b.y + 20};
-            this.boxes.push(dup);
-            newIds.push(dup.id);
+            const dup = JSON.parse(JSON.stringify(b)); // deep copy primitive data
+            if(b.type === 'image') dup.imgObj = b.imgObj; // copy ref
+            dup.id = Math.random().toString(); dup.x += 20; dup.y += 20;
+            this.boxes.push(dup); newIds.push(dup.id);
         });
-        this.selectedIds = newIds;
-        this.syncUI(); this.render(); this.saveState();
+        this.selectedIds = newIds; this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+    
+    moveSelected(dx, dy) {
+        this.selectedIds.forEach(id => { const b = this.boxes.find(x => x.id === id); b.x += dx; b.y += dy; });
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
     }
 
     clearCanvas() {
-        this.boxes = []; this.selectedIds = [];
-        this.syncUI(); this.render(); this.saveState();
+        this.boxes = []; this.selectedIds = []; this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+
+    // --- Alignment & Auto Layout ---
+    align(type) {
+        if(this.selectedIds.length < 2) return;
+        const bs = this.selectedIds.map(id => this.boxes.find(x=>x.id===id));
+        const bb = this.bbox;
+        bs.forEach(b => {
+            if(type==='left') b.x = bb.x;
+            if(type==='right') b.x = bb.x + bb.w - b.w;
+            if(type==='center') b.x = bb.x + (bb.w/2) - (b.w/2);
+            if(type==='top') b.y = bb.y;
+            if(type==='bottom') b.y = bb.y + bb.h - b.h;
+            if(type==='middle') b.y = bb.y + (bb.h/2) - (b.h/2);
+        });
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+    
+    distribute(axis) {
+        if(this.selectedIds.length < 3) return;
+        const bs = this.selectedIds.map(id => this.boxes.find(x=>x.id===id)).sort((a,b) => axis==='h'? a.x-b.x : a.y-b.y);
+        const first = bs[0]; const last = bs[bs.length-1];
+        if(axis==='h') {
+            const gap = ((last.x + last.w) - first.x - bs.reduce((sum,b)=>sum+b.w,0)) / (bs.length-1);
+            let curr = first.x + first.w + gap;
+            for(let i=1; i<bs.length-1; i++) { bs[i].x = curr; curr += bs[i].w + gap; }
+        } else {
+            const gap = ((last.y + last.h) - first.y - bs.reduce((sum,b)=>sum+b.h,0)) / (bs.length-1);
+            let curr = first.y + first.h + gap;
+            for(let i=1; i<bs.length-1; i++) { bs[i].y = curr; curr += bs[i].h + gap; }
+        }
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+    
+    autoLayout(dir) {
+        if(this.selectedIds.length < 2) return;
+        const gap = parseInt(document.getElementById('p-gap').value) || 16;
+        const bs = this.selectedIds.map(id => this.boxes.find(x=>x.id===id));
+        // Sort visually
+        bs.sort((a,b) => dir==='row' ? a.x-b.x : a.y-b.y);
+        let cx = bs[0].x, cy = bs[0].y;
+        bs.forEach(b => {
+            b.x = cx; b.y = cy;
+            if(dir==='row') cx += b.w + gap; else cy += b.h + gap;
+        });
+        this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+
+    // --- Layer Management ---
+    layerMove(dir) {
+        if(this.selectedIds.length !== 1) return;
+        const id = this.selectedIds[0];
+        const idx = this.boxes.findIndex(x=>x.id===id);
+        if(dir==='up' && idx < this.boxes.length-1) {
+            const temp = this.boxes[idx]; this.boxes[idx] = this.boxes[idx+1]; this.boxes[idx+1] = temp;
+        }
+        if(dir==='down' && idx > 0) {
+            const temp = this.boxes[idx]; this.boxes[idx] = this.boxes[idx-1]; this.boxes[idx-1] = temp;
+        }
+        this.syncUI(); this.saveHistory(); this.renderAll();
+    }
+    
+    toggleLayerProp(id, prop) {
+        const b = this.boxes.find(x=>x.id===id); b[prop] = !b[prop];
+        if(prop === 'hidden' || prop === 'locked') this.selectedIds = this.selectedIds.filter(sid => sid !== id);
+        this.updateBBox(); this.syncUI(); this.renderAll();
+    }
+
+    // --- Text Editing ---
+    startTextEdit(b) {
+        this.state = 'edit_text';
+        const input = document.getElementById('floating-input');
+        input.style.display = 'block';
+        input.value = b.text;
+        input.style.left = (b.x * this.zoom + this.panX) + 'px';
+        input.style.top = (b.y * this.zoom + this.panY) + 'px';
+        input.style.width = (b.w * this.zoom) + 'px';
+        input.style.height = (b.h * this.zoom) + 'px';
+        input.style.fontSize = (b.fontSize * this.zoom) + 'px';
+        input.style.fontWeight = b.fontWeight;
+        input.style.fontFamily = 'Inter';
+        input.style.color = b.color;
+        input.focus();
+    }
+    commitTextEdit() {
+        if(this.state !== 'edit_text') return;
+        const input = document.getElementById('floating-input');
+        const b = this.boxes.find(x=>x.id===this.selectedIds[0]);
+        if(b && b.type === 'text') b.text = input.value;
+        input.style.display = 'none';
+        this.state = 'idle';
+        this.syncUI(); this.saveHistory(); this.renderAll();
     }
 
     // --- UI Sync ---
     syncUI() {
         const pPanel = document.getElementById('properties-panel');
         const eState = document.getElementById('empty-state');
-        const mWarn = document.getElementById('multi-warning');
+        const textProps = document.getElementById('text-props');
         
+        // Properties Panel
         if(this.selectedIds.length > 0) {
             pPanel.style.display = 'flex'; pPanel.style.flexDirection = 'column';
             eState.style.display = 'none';
-            mWarn.style.display = this.selectedIds.length > 1 ? 'block' : 'none';
             
-            const b = this.boxes.find(x => x.id === this.selectedIds[0]); // Show props of first selected
-            document.getElementById('p-x').value = b.x;
-            document.getElementById('p-y').value = b.y;
-            document.getElementById('p-w').value = b.w;
-            document.getElementById('p-h').value = b.h;
+            const b = this.boxes.find(x => x.id === this.selectedIds[0]); 
+            
+            // Set values if single selection, or empty if multi
+            const isSingle = this.selectedIds.length === 1;
+            document.getElementById('p-x').value = isSingle ? b.x : '';
+            document.getElementById('p-y').value = isSingle ? b.y : '';
+            document.getElementById('p-w').value = isSingle ? b.w : '';
+            document.getElementById('p-h').value = isSingle ? b.h : '';
+            
             document.getElementById('p-r').value = b.r || 0;
             document.getElementById('p-o').value = b.opacity;
-            if(b.type === 'rect') document.getElementById('p-c').value = b.color;
+            if(b.type !== 'image') {
+                document.getElementById('p-c').value = b.color;
+                document.getElementById('p-c-hex').value = b.color;
+            }
             document.getElementById('p-shadow').checked = b.shadow || false;
 
-            // Disable pos/size inputs if multiple selected (to avoid logic complexity in single file)
-            const disableGeom = this.selectedIds.length > 1;
-            ['p-x', 'p-y', 'p-w', 'p-h'].forEach(id => document.getElementById(id).disabled = disableGeom);
+            if(isSingle && b.type === 'text') {
+                textProps.style.display = 'block';
+                document.getElementById('p-text-val').value = b.text;
+                document.getElementById('p-fsize').value = b.fontSize;
+                document.getElementById('p-fweight').value = b.fontWeight;
+            } else { textProps.style.display = 'none'; }
+            
+            // Disable pos/size inputs for multi
+            ['p-x', 'p-y', 'p-w', 'p-h'].forEach(id => document.getElementById(id).disabled = !isSingle);
         } else {
-            pPanel.style.display = 'none'; eState.style.display = 'block';
+            pPanel.style.display = 'none'; eState.style.display = 'block'; textProps.style.display = 'none';
         }
+
+        // Layers List
+        const lList = document.getElementById('layer-list');
+        lList.innerHTML = '';
+        [...this.boxes].reverse().forEach((b) => {
+            const li = document.createElement('li');
+            li.className = `layer-item ${this.selectedIds.includes(b.id) ? 'selected' : ''}`;
+            li.innerHTML = `
+                <span>${b.type==='rect'?'🟦':b.type==='image'?'🖼️':'🔤'}</span>
+                <span class="layer-name" style="${b.hidden?'text-decoration:line-through;opacity:0.5;':''}">${b.type==='text'?b.text.substring(0,15):b.type+' '+b.id.substring(0,4)}</span>
+                <div class="layer-actions">
+                    <span class="layer-icon" onclick="app.toggleLayerProp('${b.id}', 'locked'); event.stopPropagation()">${b.locked?'🔒':'🔓'}</span>
+                    <span class="layer-icon" onclick="app.toggleLayerProp('${b.id}', 'hidden'); event.stopPropagation()">${b.hidden?'👁️‍🗨️':'👁️'}</span>
+                </div>
+            `;
+            li.onclick = (e) => {
+                if(e.shiftKey) {
+                    if(this.selectedIds.includes(b.id)) this.selectedIds = this.selectedIds.filter(id => id !== b.id);
+                    else this.selectedIds.push(b.id);
+                } else { this.selectedIds = [b.id]; }
+                this.updateBBox(); this.syncUI(); this.renderAll();
+            };
+            lList.appendChild(li);
+        });
     }
 
     updateSelected() {
         if(this.selectedIds.length === 0) return;
-        
         const r = parseInt(document.getElementById('p-r').value) || 0;
         const op = parseFloat(document.getElementById('p-o').value) || 1;
         const col = document.getElementById('p-c').value;
         const sh = document.getElementById('p-shadow').checked;
 
-        // Apply styles to ALL selected
         this.selectedIds.forEach(id => {
             const b = this.boxes.find(x => x.id === id);
             b.r = r; b.opacity = op; b.shadow = sh;
-            if(b.type === 'rect') b.color = col;
+            if(b.type !== 'image') b.color = col;
+            
+            // Text specifics
+            if(b.type === 'text' && this.selectedIds.length === 1) {
+                b.text = document.getElementById('p-text-val').value;
+                b.fontSize = parseInt(document.getElementById('p-fsize').value) || 14;
+                b.fontWeight = document.getElementById('p-fweight').value;
+            }
         });
 
-        // Apply geometry to FIRST selected (if only one)
         if(this.selectedIds.length === 1) {
             const b = this.boxes.find(x => x.id === this.selectedIds[0]);
             b.x = parseInt(document.getElementById('p-x').value) || 0;
@@ -581,168 +991,213 @@ class LayoutEnginePro {
             b.h = parseInt(document.getElementById('p-h').value) || 20;
         }
         
-        this.render();
+        this.updateBBox(); this.analyzeDesign(); this.renderAll();
     }
 
-    // --- Render ---
-    render(forExport = false, scale = 1) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // --- Analyzer ---
+    analyzeDesign() {
+        if(this.boxes.length === 0) return;
+        let score = 100;
+        
+        // 1. Grid alignment (modulo 8 or 10 is good)
+        let unaligned = 0;
+        this.boxes.forEach(b => {
+            if(b.x % 8 !== 0 && b.x % 10 !== 0) unaligned++;
+            if(b.y % 8 !== 0 && b.y % 10 !== 0) unaligned++;
+        });
+        score -= (unaligned * 2);
+
+        // 2. Safe Margins (PBI best practice: 16px to 24px margins)
+        const minX = Math.min(...this.boxes.map(b=>b.x));
+        const minY = Math.min(...this.boxes.map(b=>b.y));
+        if(minX < 10) score -= 10;
+        if(minY < 10) score -= 10;
+
+        // 3. Overlaps
+        let overlaps = 0;
+        for(let i=0; i<this.boxes.length; i++) {
+            for(let j=i+1; j<this.boxes.length; j++) {
+                const b1 = this.boxes[i]; const b2 = this.boxes[j];
+                if(b1.x < b2.x+b2.w && b1.x+b1.w > b2.x && b1.y < b2.y+b2.h && b1.y+b1.h > b2.y) overlaps++;
+            }
+        }
+        score -= (overlaps * 5);
+
+        score = Math.max(0, Math.min(100, score));
+        const scoreEl = document.getElementById('analyzer-score');
+        scoreEl.innerText = `${score}/100`;
+        scoreEl.style.color = score > 80 ? 'var(--success)' : score > 50 ? 'var(--warning)' : 'var(--danger)';
+        
+        let msg = score > 80 ? 'Great structure!' : score > 50 ? 'Check alignment & overlaps.' : 'Needs major restructuring.';
+        if(this.pbiMode && (minX<16 || minY<16)) msg += " Increase margins for PBI.";
+        document.getElementById('analyzer-msg').innerText = msg;
+    }
+
+    // --- Rendering ---
+    renderAll() {
+        requestAnimationFrame(() => this._render(this.ctx, this.canvas.width, this.canvas.height, false));
+        requestAnimationFrame(() => this._renderMinimap());
+    }
+
+    _render(ctx, cvW, cvH, forExport=false, scale=1) {
+        ctx.clearRect(0, 0, cvW, cvH);
+
+        // Grid Background
+        if(!forExport && document.getElementById('show-grid').checked) {
+            const cols = 12; const gutter = 16; const margin = 24;
+            const colW = (this.width - (margin*2) - (gutter*(cols-1))) / cols;
+            ctx.fillStyle = 'rgba(0, 112, 243, 0.05)';
+            for(let i=0; i<cols; i++) {
+                ctx.fillRect(margin + (colW+gutter)*i, 0, colW, this.height);
+            }
+        }
+
+        // PBI Mode Margins
+        if(!forExport && this.pbiMode) {
+            ctx.strokeStyle = 'rgba(248, 28, 229, 0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+            ctx.strokeRect(16, 16, this.width-32, this.height-32);
+            ctx.setLineDash([]);
+        }
 
         // Draw Elements
-        this.boxes.forEach(b => {
-            this.ctx.save();
-            this.ctx.globalAlpha = b.opacity;
+        this.boxes.filter(b=>!b.hidden).forEach(b => {
+            ctx.save();
+            ctx.globalAlpha = b.opacity;
             
             if(b.shadow) {
-                this.ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-                this.ctx.shadowBlur = 30 * scale;
-                this.ctx.shadowOffsetY = 15 * scale;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+                ctx.shadowBlur = 24 * scale;
+                ctx.shadowOffsetY = 12 * scale;
             }
 
-            this.ctx.beginPath();
-            this.ctx.roundRect(b.x, b.y, b.w, b.h, b.r);
-            
-            if(b.type === 'rect') {
-                this.ctx.fillStyle = b.color;
-                this.ctx.fill();
-            } else if(b.type === 'image' && b.imgObj) {
-                this.ctx.clip(); // Clip to rounded rect
-                this.ctx.drawImage(b.imgObj, b.x, b.y, b.w, b.h);
+            if(b.type === 'rect' || b.type === 'image') {
+                ctx.beginPath();
+                ctx.roundRect(b.x, b.y, b.w, b.h, b.r);
+                if(b.type === 'rect') { ctx.fillStyle = b.color; ctx.fill(); } 
+                else if(b.type === 'image' && b.imgObj) { ctx.clip(); ctx.drawImage(b.imgObj, b.x, b.y, b.w, b.h); }
+            } 
+            else if(b.type === 'text') {
+                ctx.fillStyle = b.color;
+                ctx.font = `${b.fontWeight} ${b.fontSize * scale}px var(--font-primary)`;
+                ctx.textBaseline = 'top';
+                ctx.fillText(b.text, b.x, b.y);
             }
-            this.ctx.restore();
+            ctx.restore();
         });
 
         if(forExport) return;
 
-        // Draw Selection Highlighting
-        if(this.selectedIds.length > 0) {
-            this.ctx.strokeStyle = 'var(--selection-border)';
-            this.ctx.lineWidth = 2;
-            
-            this.selectedIds.forEach(id => {
-                const b = this.boxes.find(x => x.id === id);
-                if(b) this.ctx.strokeRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
-            });
+        // Draw Selection Bounding Box & Handles
+        if(this.bbox && this.selectedIds.length > 0) {
+            ctx.strokeStyle = 'var(--selection-border)'; ctx.lineWidth = 2;
+            const bx = this.bbox.x, by = this.bbox.y, bw = this.bbox.w, bh = this.bbox.h;
+            ctx.strokeRect(bx, by, bw, bh);
 
-            // Draw Resize Handle for single selection
-            if(this.selectedIds.length === 1) {
-                const b = this.boxes.find(x => x.id === this.selectedIds[0]);
-                this.ctx.fillStyle = '#ffffff';
-                this.ctx.fillRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
-                this.ctx.strokeRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
-            }
+            const hs = 8;
+            ctx.fillStyle = '#fff';
+            const drawH = (x,y) => { ctx.fillRect(x-hs/2, y-hs/2, hs, hs); ctx.strokeRect(x-hs/2, y-hs/2, hs, hs); };
+            drawH(bx, by); drawH(bx+bw/2, by); drawH(bx+bw, by); // Top
+            drawH(bx, by+bh/2); drawH(bx+bw, by+bh/2); // Mid
+            drawH(bx, by+bh); drawH(bx+bw/2, by+bh); drawH(bx+bw, by+bh); // Bottom
         }
 
         // Draw Marquee
-        if(this.isSelecting && this.selectionBox) {
-            this.ctx.fillStyle = 'var(--selection)';
-            this.ctx.strokeStyle = 'var(--selection-border)';
-            this.ctx.lineWidth = 1;
-            this.ctx.fillRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
-            this.ctx.strokeRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
+        if(this.state === 'select' && this.selectionBox) {
+            ctx.fillStyle = 'var(--selection-bg)'; ctx.strokeStyle = 'var(--selection-border)'; ctx.lineWidth = 1;
+            ctx.fillRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
+            ctx.strokeRect(this.selectionStart.x, this.selectionStart.y, this.selectionBox.w, this.selectionBox.h);
+        }
+
+        // Draw Smart Guides
+        if(this.guides.v !== null || this.guides.h !== null) {
+            ctx.strokeStyle = 'var(--guide-color)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+            ctx.beginPath();
+            if(this.guides.v !== null) { ctx.moveTo(this.guides.v, 0); ctx.lineTo(this.guides.v, this.height); }
+            if(this.guides.h !== null) { ctx.moveTo(0, this.guides.h); ctx.lineTo(this.width, this.guides.h); }
+            ctx.stroke(); ctx.setLineDash([]);
         }
     }
 
-    // --- 20 Smart Layouts Generator ---
+    _renderMinimap() {
+        this.miniCtx.clearRect(0,0, this.miniCanvas.width, this.miniCanvas.height);
+        const scale = this.miniCanvas.width / this.width;
+        
+        this.miniCtx.fillStyle = 'rgba(255,255,255,0.1)';
+        this.miniCtx.fillRect(0,0, this.miniCanvas.width, this.miniCanvas.height);
+
+        this.boxes.filter(b=>!b.hidden).forEach(b => {
+            this.miniCtx.fillStyle = b.type==='rect' ? b.color : '#888';
+            this.miniCtx.fillRect(b.x*scale, b.y*scale, b.w*scale, b.h*scale);
+        });
+        
+        this.updateMinimapViewport();
+    }
+    
+    updateMinimapViewport() {
+        const scale = this.miniCanvas.width / this.width;
+        const ws = this.workspace.getBoundingClientRect();
+        
+        const vpW = (ws.width / this.zoom) * scale;
+        const vpH = (ws.height / this.zoom) * scale;
+        const vpX = (-this.panX / this.zoom) * scale;
+        const vpY = (-this.panY / this.zoom) * scale;
+        
+        this.miniVp.style.width = vpW + 'px';
+        this.miniVp.style.height = vpH + 'px';
+        this.miniVp.style.left = vpX + 'px';
+        this.miniVp.style.top = vpY + 'px';
+    }
+
+    // --- Templates ---
     generateLayout() {
         const type = parseInt(document.getElementById('layout-select').value);
+        if(!type) return;
         this.boxes = [];
-        const w = this.width; const h = this.height;
-        const g = 20; // gap
-        const base = () => ({ id: Math.random().toString(), type: 'rect', color: '#ffffff', opacity: 1, shadow: true, r: 16 });
+        const w = this.width; const h = this.height; const g = 20; 
+        const base = () => ({ id: Math.random().toString(), type: 'rect', color: '#ffffff', opacity: 1, shadow: true, r: 12, locked:false, hidden:false });
         const add = (x,y,bw,bh) => this.boxes.push({...base(), x, y, w: bw, h: bh});
-
-        const w3 = (w - g*4)/3; const w4 = (w - g*5)/4;
-        const h2 = (h - g*3)/2; const h3 = (h - g*4)/3;
+        const addT = (txt, x, y, fz=24, fw=600) => this.boxes.push({id: Math.random().toString(), type: 'text', text:txt, x, y, w: 200, h: 40, color:'#888888', opacity:1, fontSize:fz, fontWeight:fw, locked:false, hidden:false});
 
         switch(type) {
             case 1: // Standard Dash
-                add(g,g, w-g*2, 80); // Header
-                for(let i=0;i<4;i++) add(g+(w4+g)*i, g*2+80, w4, 120); // KPIs
-                add(g, g*3+200, (w-g*3)/2, h-(g*4+200)); add(g*2+(w-g*3)/2, g*3+200, (w-g*3)/2, h-(g*4+200)); // Charts
-                break;
-            case 2: // 3 Cols
-                for(let i=0;i<3;i++) add(g+(w3+g)*i, g, w3, h-g*2); break;
-            case 3: // 4 Cols
-                for(let i=0;i<4;i++) add(g+(w4+g)*i, g, w4, h-g*2); break;
-            case 4: // Sidebar
-                add(g,g, 250, h-g*2); add(250+g*2, g, w-250-g*3, h-g*2); break;
-            case 5: // Top + 3 Cols
-                add(g,g, w-g*2, 100); for(let i=0;i<3;i++) add(g+(w3+g)*i, g*2+100, w3, h-100-g*3); break;
-            case 6: // 2x2
-                add(g,g, (w-g*3)/2, h2); add(g*2+(w-g*3)/2, g, (w-g*3)/2, h2);
-                add(g, g*2+h2, (w-g*3)/2, h2); add(g*2+(w-g*3)/2, g*2+h2, (w-g*3)/2, h2); break;
-            case 7: // 3x3
-                for(let r=0;r<3;r++) for(let c=0;c<3;c++) add(g+(w3+g)*c, g+(h3+g)*r, w3, h3); break;
-            case 8: // Dual Massive
-                add(g,g, w-g*2, h2); add(g, g*2+h2, w-g*2, h2); break;
-            case 9: // 6 KPIs + Main
-                const w6 = (w-g*7)/6;
-                for(let i=0;i<6;i++) add(g+(w6+g)*i, g, w6, 120);
-                add(g, g*2+120, w-g*2, h-120-g*3); break;
-            case 10: // Asymmetric Left
-                add(g,g, (w-g*3)*0.65, h-g*2); add(g*2+(w-g*3)*0.65, g, (w-g*3)*0.35, h2); add(g*2+(w-g*3)*0.65, g*2+h2, (w-g*3)*0.35, h2); break;
-            case 11: // Asymmetric Right
-                add(g,g, (w-g*3)*0.35, h2); add(g, g*2+h2, (w-g*3)*0.35, h2); add(g*2+(w-g*3)*0.35, g, (w-g*3)*0.65, h-g*2); break;
-            case 12: // Executive Center
-                add(g,g, 250, h-g*2); add(w-250-g, g, 250, h-g*2); add(g*2+250, g, w-500-g*4, h-g*2); break;
-            case 13: // Marketing
-                add(g,g, 200, h-g*2); // side
-                for(let i=0;i<3;i++) add(200+g*2 + ((w-200-g*5)/3 + g)*i, g, (w-200-g*5)/3, 150); // kpis
-                add(200+g*2, g*2+150, w-200-g*4, h-150-g*3); break; // main
-            case 14: // Financial
-                add(g,g, w-g*2, 60); // header
-                add(g, g*2+60, w-g*2, h2-30); // wide chart
-                for(let i=0;i<4;i++) add(g+(w4+g)*i, g*3+60+h2-30, w4, h-g*4-60-(h2-30)); break;
-            case 15: // Single
-                add(g*2, g*2, w-g*4, h-g*4); break;
-            case 16: // Top Heavy
-                add(g,g, w-g*2, h*0.6);
-                for(let i=0;i<3;i++) add(g+(w3+g)*i, g*2+h*0.6, w3, h*0.4-g*3); break;
-            case 17: // Bottom Heavy
-                for(let i=0;i<3;i++) add(g+(w3+g)*i, g, w3, h*0.4-g*2);
-                add(g, g*2+h*0.4-g*2, w-g*2, h*0.6); break;
-            case 18: // 5 Cols
-                const w5 = (w-g*6)/5;
-                for(let i=0;i<5;i++) add(g+(w5+g)*i, g, w5, h-g*2); break;
-            case 19: // Floating Islands
-                add(w*0.1, h*0.1, w*0.8, h*0.2); add(w*0.1, h*0.35, w*0.35, h*0.5); add(w*0.55, h*0.35, w*0.35, h*0.5); break;
-            case 20: // Minimalist
-                add(g*3, g*3, w-g*6, 100); add(g*3, g*4+100, w-g*6, h-g*7-100); break;
+                add(g,g, w-g*2, 80); addT('Dashboard Overview', g*2, g+24, 28, 700);
+                for(let i=0;i<4;i++) add(g+((w-g*5)/4+g)*i, g*2+80, (w-g*5)/4, 120);
+                add(g, g*3+200, (w-g*3)/2, h-(g*4+200)); add(g*2+(w-g*3)/2, g*3+200, (w-g*3)/2, h-(g*4+200)); break;
+            case 2: // Exec Summary
+                add(g,g, 300, h-g*2); add(300+g*2, g, w-300-g*3, 150); add(300+g*2, g*2+150, w-300-g*3, h-150-g*3); break;
+            case 3: // Financial Matrix
+                add(g,g, w-g*2, 60); add(g, g*2+60, w-g*2, h/2-60);
+                for(let i=0;i<4;i++) add(g+((w-g*5)/4+g)*i, h/2+g*2, (w-g*5)/4, h/2-g*3); break;
+            case 4: // Marketing
+                add(g,g, 250, h-g*2); for(let i=0;i<3;i++) add(250+g*2 + ((w-250-g*5)/3 + g)*i, g, (w-250-g*5)/3, 150);
+                add(250+g*2, g*2+150, w-250-g*4, h-150-g*3); break;
+            case 5: // KPI Focus
+                add(g,g, w-g*2, h*0.5); for(let i=0;i<3;i++) add(g+((w-g*4)/3+g)*i, g*2+h*0.5, (w-g*4)/3, h*0.5-g*3); break;
+            case 6: // Sidebar Nav
+                add(0,0, 80, h); add(80+g, g, w-80-g*2, 100); add(80+g, 100+g*2, w-80-g*2, h-100-g*3); break;
         }
-
-        this.selectedIds = []; this.syncUI(); this.render(); this.saveState();
+        this.selectedIds = []; this.updateBBox(); this.syncUI(); this.saveHistory(); this.renderAll();
     }
 
     // --- Export ---
     exportPNG() {
-        const scale = 2; // 2x Resolution
+        const scale = 2; 
         const tempC = document.createElement('canvas');
         tempC.width = this.width * scale; tempC.height = this.height * scale;
         const tempCtx = tempC.getContext('2d');
+        tempCtx.scale(scale, scale);
         
-        const origCtx = this.ctx; const origC = this.canvas;
-        this.ctx = tempCtx; this.canvas = tempC;
-
-        this.ctx.scale(scale, scale);
+        tempCtx.fillStyle = 'transparent'; // PBI needs transparent bg mostly
+        tempCtx.fillRect(0,0, this.width, this.height);
         
-        // Draw physical transparent background or canvas color based on PBI needs
-        this.ctx.fillStyle = 'transparent'; 
-        this.ctx.fillRect(0,0, this.width, this.height);
-        
-        this.render(true, scale);
+        this._render(tempCtx, this.width, this.height, true, scale);
 
         const link = document.createElement('a');
-        link.download = `PBI_Layout_Pro_${this.width}x${this.height}.png`;
+        link.download = `PBI_Layout_${this.width}x${this.height}.png`;
         link.href = tempC.toDataURL('image/png');
         link.click();
-
-        this.ctx = origCtx; this.canvas = origC;
-        this.render();
     }
 }
-
-const app = new LayoutEnginePro();
 </script>
 </body>
 </html>
