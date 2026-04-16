@@ -25,6 +25,32 @@
 .floating-export-box .section-title {
     margin-bottom: 12px;
 }
+       /* أزرار إخفاء/إظهار القوائم */
+.panel-toggle-btn {
+    position: absolute;
+    top: 24px;
+    background: var(--bg-panel-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 60;
+    transition: 0.2s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+.panel-toggle-btn:hover {
+    background: var(--bg-hover);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+.toggle-left { left: 24px; }
+.toggle-right { right: 360px; } /* ليكون بجانب صندوق التصدير العائم */
         /* Driver.js Dark SaaS Theme Override */
         .driver-popover {
             background: var(--bg-panel-glass) !important;
@@ -301,8 +327,7 @@
             </div>
 
             <div class="section">
-                <div class="section-title">Workspace Setup <span onclick="const el = document.getElementById('ws-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; setTimeout(() => app.fitToScreen(), 50);" style="cursor:pointer; font-size:12px; border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px;">👁️ إخفاء/إظهار</span></div>
-                
+<div class="section-title">Workspace Setup</div>                
                 <div id="ws-content">
                     <div class="grid-2">
                         <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
@@ -341,6 +366,9 @@
         </div>
 
         <div class="workspace" id="workspace">
+    
+    <button class="panel-toggle-btn toggle-left" onclick="app.togglePanel('left')" data-tooltip="إخفاء/إظهار الأدوات">🛠️</button>
+    <button class="panel-toggle-btn toggle-right" onclick="app.togglePanel('right')" data-tooltip="إخفاء/إظهار الخصائص">⚙️</button>
             
             <div class="floating-export-box">
                 <div class="section-title">Layout & Export</div>
@@ -625,7 +653,17 @@ class LayoutEnginePro {
         
         setTimeout(() => { this.fitToScreen(); this.renderAll(); }, 50);
     }
-
+togglePanel(side) {
+        const panel = document.querySelector(`.sidebar-${side}`);
+        // إخفاء أو إظهار القائمة
+        panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+        
+        // إعادة توسيط التصميم (Fit to Screen) تلقائياً بعد تغيير المساحة
+        setTimeout(() => {
+            this.fitToScreen();
+            this.renderAll();
+        }, 50);
+    }
     // --- Core Updates ---
     updateCanvasDimensions(save = true) {
         this.width = parseInt(document.getElementById('c-w').value) || 1280;
