@@ -163,15 +163,21 @@
             background: var(--bg-panel-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10;
         }
-        .sidebar-left { width: 300px; }
-        .sidebar-right { width: 320px; border-right: none; border-left: 1px solid var(--border); }
-        
+.sidebar-left, .sidebar-right { 
+            height: 100vh; /* إجبار القائمة على أخذ طول الشاشة فقط */
+        }        
         .header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
         .brand-title { font-family: var(--font-secondary); font-size: 14px; font-weight: 700; letter-spacing: 0px; }
         .welcome-text { font-size: 12px; color: var(--text-muted); }
         
         .section { padding: 16px; border-bottom: 1px solid var(--border); overflow-y: auto; flex-shrink: 0;}
-        .section.fill { flex-grow: 1; border-bottom: none; }
+.section.fill { 
+            flex: 1; 
+            min-height: 0; /* السر برمجياً لمنع التمدد خارج الشاشة */
+            display: flex; 
+            flex-direction: column; 
+            border-bottom: none; 
+        }
         .section-title { font-family: var(--font-secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--text-muted); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
         .section-title span { cursor: pointer; color: var(--primary); }
 
@@ -272,7 +278,16 @@
         .score-val { font-size: 24px; font-weight: 700; color: var(--success); font-family: var(--font-secondary); }
 
         /* Layers Panel */
-        .layer-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.layer-list { 
+            list-style: none; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2px; 
+            flex: 1; 
+            overflow-y: auto; /* تفعيل السكرول بعجل الماوس */
+            min-height: 0; 
+            padding-right: 4px; 
+        }
         .layer-item {
             display: flex; align-items: center; padding: 6px 8px; font-size: 11px; color: var(--text-muted);
             border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent;
@@ -595,12 +610,16 @@ function startApp() {
     // Init Engine
     window.app = new LayoutEnginePro();
 
-    // Start Tour after a 500ms delay to let the UI render completely
+    // Start Tour after a 500ms delay (Only if not seen before)
     setTimeout(() => {
-        startTour(isArabic ? 'ar' : 'en');
+        const hasSeenTour = localStorage.getItem('pbi_tour_seen');
+        if (!hasSeenTour) {
+            startTour(isArabic ? 'ar' : 'en');
+            localStorage.setItem('pbi_tour_seen', 'true'); // حفظ أن المستخدم قد رأى الجولة
+        }
     }, 500);
 }
-window.onload = () => {
+    window.onload = () => {
     const savedName = localStorage.getItem('pbi_designer_name');
     if(savedName) document.getElementById('user-name-input').value = savedName;
 };
@@ -655,14 +674,13 @@ class LayoutEnginePro {
     }
 togglePanel(side) {
         const panel = document.querySelector(`.sidebar-${side}`);
-        // إخفاء أو إظهار القائمة
         panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
         
-        // إعادة توسيط التصميم (Fit to Screen) تلقائياً بعد تغيير المساحة
+        // إعطاء المتصفح وقت كافي لتحديث الأبعاد ثم عمل توسيط أكيد
         setTimeout(() => {
             this.fitToScreen();
             this.renderAll();
-        }, 50);
+        }, 150);
     }
     // --- Core Updates ---
     updateCanvasDimensions(save = true) {
@@ -763,6 +781,7 @@ togglePanel(side) {
 
     // --- Events Core ---
     bindEvents() {
+        window.addEventListener('resize', () => { this.fitToScreen(); this.renderAll(); });
         this.workspace.addEventListener('wheel', (e) => {
             if(e.ctrlKey || e.metaKey) { e.preventDefault(); this.setZoom(this.zoom - (e.deltaY > 0 ? 0.05 : -0.05)); } 
             else { this.panX -= e.deltaX; this.panY -= e.deltaY; this.applyTransform(); }
