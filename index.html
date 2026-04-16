@@ -7,6 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Layout Maker By Basel - Pro SaaS Edition</title>
     <style>
+        .floating-export-box {
+    position: absolute;
+    top: 24px;
+    right: 24px; /* سيبتعد عن اليمين ليكون فوق مساحة العمل */
+    background: var(--bg-panel-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    width: 320px;
+    z-index: 50;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+/* تعديل بسيط ليتناسب عنوان القسم داخل الصندوق الجديد */
+.floating-export-box .section-title {
+    margin-bottom: 12px;
+}
         /* Driver.js Dark SaaS Theme Override */
         .driver-popover {
             background: var(--bg-panel-glass) !important;
@@ -283,18 +301,21 @@
             </div>
 
             <div class="section">
-                <div class="section-title">Workspace Setup</div>
-                <div class="grid-2">
-                    <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
-                    <div class="control-group"><label>Height</label><input type="number" id="c-h" value="720"></div>
-                </div>
-                <div class="toggle-group">
-                    <span>Power BI Safe Mode</span>
-                    <label class="switch"><input type="checkbox" id="pbi-mode" onchange="app.togglePBIMode()"><span class="slider"></span></label>
-                </div>
-                <div class="toggle-group">
-                    <span>12-Column Grid</span>
-                    <label class="switch"><input type="checkbox" id="show-grid" onchange="app.renderAll()"><span class="slider"></span></label>
+                <div class="section-title">Workspace Setup <span onclick="const el = document.getElementById('ws-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; setTimeout(() => app.fitToScreen(), 50);" style="cursor:pointer; font-size:12px; border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px;">👁️ إخفاء/إظهار</span></div>
+                
+                <div id="ws-content">
+                    <div class="grid-2">
+                        <div class="control-group"><label>Width</label><input type="number" id="c-w" value="1280"></div>
+                        <div class="control-group"><label>Height</label><input type="number" id="c-h" value="720"></div>
+                    </div>
+                    <div class="toggle-group">
+                        <span>Power BI Safe Mode</span>
+                        <label class="switch"><input type="checkbox" id="pbi-mode" onchange="app.togglePBIMode()"><span class="slider"></span></label>
+                    </div>
+                    <div class="toggle-group">
+                        <span>12-Column Grid</span>
+                        <label class="switch"><input type="checkbox" id="show-grid" onchange="app.renderAll()"><span class="slider"></span></label>
+                    </div>
                 </div>
             </div>
 
@@ -317,8 +338,11 @@
                 </div>
                 <ul class="layer-list" id="layer-list" style="flex:1; overflow-y:auto;"></ul>
             </div>
+        </div>
 
-            <div class="section">
+        <div class="workspace" id="workspace">
+            
+            <div class="floating-export-box">
                 <div class="section-title">Layout & Export</div>
                 
                 <select id="layout-select" class="select-premium">
@@ -381,9 +405,6 @@
                 </div>
                 <button class="btn btn-primary" onclick="app.exportPNG()">📥 Export PBI Background</button>
             </div>
-        </div>
-
-        <div class="workspace" id="workspace">
             <div id="canvas-container">
                 <canvas id="appCanvas"></canvas>
                 <textarea id="floating-input"></textarea>
