@@ -1,10 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Layout Maker By Basel - Pro SaaS Edition</title>
     <style>
+        /* Driver.js Dark SaaS Theme Override */
+        .driver-popover {
+            background: var(--bg-panel-glass) !important;
+            backdrop-filter: blur(24px) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-main) !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6) !important;
+        }
+        .driver-popover-title { color: var(--primary) !important; font-family: var(--font-secondary); font-weight: 700; margin-bottom: 8px !important; }
+        .driver-popover-description { color: var(--text-muted) !important; font-size: 13px !important; line-height: 1.6; }
+        .driver-popover-footer button {
+            background: var(--bg-base) !important; border: 1px solid var(--border) !important;
+            color: var(--text-main) !important; text-shadow: none !important; border-radius: var(--radius-sm) !important; transition: 0.2s;
+        }
+        .driver-popover-footer button:hover { background: var(--bg-hover) !important; border-color: var(--primary) !important; }
+        .driver-popover-progress-text { color: var(--text-muted) !important; }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
@@ -240,11 +259,17 @@
     </style>
 </head>
 <body>
-
-    <div id="intro-screen">
+<div id="intro-screen">
         <div class="intro-card">
             <h1 class="intro-brand">Layout Maker Pro</h1>
             <p>Professional Dashboard Architecture Tool</p>
+            
+            <div class="toggle-group" style="justify-content: center; gap: 15px; margin-bottom: 20px;">
+                <span style="color: white; font-weight: 600;">English</span>
+                <label class="switch"><input type="checkbox" id="lang-switch"><span class="slider"></span></label>
+                <span style="color: white; font-weight: 600;">عربي</span>
+            </div>
+
             <input type="text" id="user-name-input" class="intro-input" placeholder="Enter your name" autocomplete="off" onkeydown="if(event.key==='Enter') startApp()">
             <button class="intro-btn" onclick="startApp()">Enter Workspace →</button>
         </div>
@@ -476,10 +501,43 @@
 
 <script>
 // --- Pre-App Logic ---
+// --- Pre-App Logic & Tour ---
+function startTour(lang) {
+    const driver = window.driver.js.driver;
+    
+    // تعريف الخطوات باللغتين
+    const steps = lang === 'ar' ? [
+        { element: '.sidebar-left', popover: { title: '🛠️ أدوات التصميم', description: 'من هذه القائمة يمكنك التحكم بأبعاد اللوحة، إضافة صناديق ونصوص وصور، واختيار القوالب الجاهزة.', side: "right", align: 'start' }},
+        { element: '#workspace', popover: { title: '🎨 مساحة العمل', description: 'هنا يتم السحر! اسحب وأفلت العناصر، قم بتكبيرها وتصغيرها لبناء تصميمك.', side: "top", align: 'start' }},
+        { element: '.sidebar-right', popover: { title: '⚙️ خصائص العنصر', description: 'حدد أي عنصر في مساحة العمل لتعديل ألوانه، أبعاده، حوافه، ومحاذاته من هنا.', side: "left", align: 'start' }},
+        { element: '.toolbar-bottom', popover: { title: '🎛️ شريط التحكم', description: 'استخدم هذا الشريط للتراجع عن الخطوات، التحكم بالتقريب (Zoom)، ومسح اللوحة بالكامل.', side: "top", align: 'center' }},
+        { element: '.btn-primary', popover: { title: '📥 التصدير', description: 'عند الانتهاء من تصميمك، اضغط هنا لتصدير اللوحة كخلفية جاهزة لـ Power BI.', side: "right", align: 'center' }}
+    ] : [
+        { element: '.sidebar-left', popover: { title: '🛠️ Design Tools', description: 'From here you can control canvas size, insert elements, and apply smart layouts.', side: "right", align: 'start' }},
+        { element: '#workspace', popover: { title: '🎨 Workspace', description: 'This is where the magic happens! Drag, drop, and resize elements to build your design.', side: "top", align: 'start' }},
+        { element: '.sidebar-right', popover: { title: '⚙️ Properties', description: 'Select any element to edit its colors, dimensions, radius, and alignment.', side: "left", align: 'start' }},
+        { element: '.toolbar-bottom', popover: { title: '🎛️ Control Bar', description: 'Use this bar to undo/redo actions, control zoom, or clear the canvas.', side: "top", align: 'center' }},
+        { element: '.btn-primary', popover: { title: '📥 Export', description: 'When you are done, click here to export your design as a Power BI background.', side: "right", align: 'center' }}
+    ];
+
+    const tour = driver({
+        showProgress: true,
+        steps: steps,
+        nextBtnText: lang === 'ar' ? 'التالي ←' : 'Next →',
+        prevBtnText: lang === 'ar' ? '→ السابق' : '← Prev',
+        doneBtnText: lang === 'ar' ? 'ابدأ التصميم 🚀' : 'Start Designing 🚀',
+        popoverClass: 'driver-popover'
+    });
+    
+    tour.drive();
+}
+
 function startApp() {
     const name = document.getElementById('user-name-input').value.trim() || 'Designer';
+    const isArabic = document.getElementById('lang-switch').checked; // Check language toggle
+    
     localStorage.setItem('pbi_designer_name', name);
-    document.getElementById('welcome-msg').innerText = `Welcome, ${name}`;
+    document.getElementById('welcome-msg').innerText = isArabic ? `مرحباً بك، ${name}` : `Welcome, ${name}`;
     
     document.getElementById('intro-screen').style.opacity = '0';
     document.getElementById('intro-screen').style.visibility = 'hidden';
@@ -487,8 +545,12 @@ function startApp() {
     
     // Init Engine
     window.app = new LayoutEnginePro();
-}
 
+    // Start Tour after a 500ms delay to let the UI render completely
+    setTimeout(() => {
+        startTour(isArabic ? 'ar' : 'en');
+    }, 500);
+}
 window.onload = () => {
     const savedName = localStorage.getItem('pbi_designer_name');
     if(savedName) document.getElementById('user-name-input').value = savedName;
